@@ -848,22 +848,37 @@ export default function App() {
   const [alertDismissed, setAlertDismissed] = useState(false);
   const [time, setTime] = useState(new Date());
   const [demoState, setDemoState] = useState({ loading: false, result: null });
+  const [nextRefresh, setNextRefresh] = useState(30 * 60); // seconds until next refresh
+  const [lastRefreshed, setLastRefreshed] = useState(null);
 
-  // Clock
+  const REFRESH_INTERVAL = 30 * 60 * 1000; // 30 minutes in ms
+
+  // Clock + countdown
   useEffect(() => {
-    const t = setInterval(() => setTime(new Date()), 1000);
+    const t = setInterval(() => {
+      setTime(new Date());
+      setNextRefresh(s => s <= 1 ? 30 * 60 : s - 1);
+    }, 1000);
     return () => clearInterval(t);
   }, []);
 
-  // Fetch live RSS on mount
-  useEffect(() => {
-    if (!apiKey) return;
+  const doFetchLive = useCallback(() => {
     setFetchingLive(true);
     fetchLiveArticles().then(arts => {
-      setLiveArticles(arts);
+      if (arts.length > 0) setLiveArticles(arts);
       setFetchingLive(false);
+      setLastRefreshed(new Date());
+      setNextRefresh(30 * 60);
     });
-  }, [apiKey]);
+  }, []);
+
+  // Fetch live RSS on mount + every 30 minutes
+  useEffect(() => {
+    if (!apiKey) return;
+    doFetchLive();
+    const interval = setInterval(doFetchLive, REFRESH_INTERVAL);
+    return () => clearInterval(interval);
+  }, [apiKey, doFetchLive]);
 
   const handleDemoTrigger = useCallback(async () => {
     setDemoState({ loading: true, result: null });
@@ -962,7 +977,18 @@ export default function App() {
                   <span style={{ color: "var(--tm)", fontSize: 10 }}>×</span>
                 </div>
               )}
-              {fetchingLive && <span style={{ color: "var(--cyan)", fontSize: 11, fontFamily: "monospace" }}>fetching live feed…</span>}
+              {fetchingLive
+                ? <span style={{ color: "var(--cyan)", fontSize: 11, fontFamily: "monospace", display: "flex", alignItems: "center", gap: 6 }}><Spinner /> refreshing...</span>
+                : (
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    {lastRefreshed && <span style={{ color: "var(--tm)", fontSize: 11, fontFamily: "monospace" }}>updated {lastRefreshed.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>}
+                    <span style={{ color: "var(--tm)", fontSize: 11, fontFamily: "monospace" }}>next refresh {Math.floor(nextRefresh / 60)}:{String(nextRefresh % 60).padStart(2, "0")}</span>
+                    <button onClick={doFetchLive} style={{ background: "var(--bg3)", border: "1px solid var(--borderlit)", borderRadius: 5, padding: "3px 9px", color: "var(--amber)", cursor: "pointer", fontSize: 11, fontFamily: "monospace" }}>
+                      refresh now
+                    </button>
+                  </div>
+                )
+              }
               <div className="mono" style={{ fontSize: 11, color: "var(--tm)" }}>{time.toUTCString().slice(0, 22)} UTC</div>
               <button onClick={() => setShowTour(true)} style={{ background: "var(--bg3)", border: "1px solid var(--border)", borderRadius: 5, padding: "4px 10px", color: "var(--ts)", cursor: "pointer", fontSize: 11, fontFamily: "monospace" }}>? TOUR</button>
             </div>
