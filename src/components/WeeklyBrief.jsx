@@ -30,7 +30,7 @@ export default function WeeklyBriefPanel({ apiKey }) {
       {themePopup && <ThemeDetailPopup theme={themePopup} onClose={() => setThemePopup(null)} apiKey={apiKey} />}
 
       {/* Header */}
-      <div style={{ gridColumn: "1/-1" }} className="card" style={{ border: "1px solid var(--amber-dim)", background: "var(--card-bg)", borderRadius: 8, padding: "18px 20px" }}>
+      <div className="card" style={{ gridColumn: "1/-1", border: "1px solid var(--amber-dim)", background: "var(--card-bg)", borderRadius: 8, padding: "18px 20px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
           <div>
             <div className="mono" style={{ color: "var(--amber)", fontSize: 11, letterSpacing: "0.2em" }}>MACRO INTELLIGENCE BRIEF</div>
@@ -52,7 +52,7 @@ export default function WeeklyBriefPanel({ apiKey }) {
 
       {/* AI Generated Brief */}
       {briefCache && (
-        <div style={{ gridColumn: "1/-1" }} className="card fade-up" style={{ border: "1px solid var(--cyan)33", background: "var(--card-bg)", borderRadius: 8, padding: "20px 24px" }}>
+        <div className="card fade-up" style={{ gridColumn: "1/-1", border: "1px solid var(--cyan)33", background: "var(--card-bg)", borderRadius: 8, padding: "20px 24px" }}>
           <SectionTitle color="var(--cyan)">AI Macro Intelligence Brief</SectionTitle>
           <MarkdownText text={briefCache.content} />
         </div>

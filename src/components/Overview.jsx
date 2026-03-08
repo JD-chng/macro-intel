@@ -105,7 +105,7 @@ export default function OverviewPanel({ apiKey, avKey, liveArticles }) {
       </div>
 
       {/* AI Query — prominent */}
-      <div style={{ gridColumn: "1/-1" }} className="card" style={{ border: "1px solid var(--borderlit)", background: "var(--card-bg)", borderRadius: 8, padding: "18px 20px" }}>
+      <div className="card" style={{ gridColumn: "1/-1", border: "1px solid var(--borderlit)", background: "var(--card-bg)", borderRadius: 8, padding: "18px 20px" }}>
         <SectionTitle color="var(--amber)">Ask the Macro Intelligence Engine</SectionTitle>
         <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
           <input value={query} onChange={e => setQuery(e.target.value)} onKeyDown={e => e.key === "Enter" && askAI()}

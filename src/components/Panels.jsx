@@ -382,7 +382,7 @@ export function SocialPulsePanel() {
           {displayPosts.map((p, i) => (
             <div key={p.id || i} style={{ padding: "12px 0", borderBottom: "1px solid var(--border)" }}>
               <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-                <div style={{ background: p.source === "Reddit" ? "#ff450022" : p.source === "StockTwits" ? "#00aaff22" : "#1da1f222", border: `1px solid ${p.source === "Reddit" ? "#ff450044" : p.source === "StockTwits" ? "#00aaff44" : "#1da1f244"}`, borderRadius: 5, padding: "3px 7px", fontSize: 10, fontFamily: "monospace", color: p.source === "Reddit" ? "#ff4500" : p.source === "StockTwits" ? "#00aaff" : "#1da1f2", flexShrink: 0 }}>{p.source}</span>
+                <div style={{ background: p.source === "Reddit" ? "#ff450022" : p.source === "StockTwits" ? "#00aaff22" : "#1da1f222", border: `1px solid ${p.source === "Reddit" ? "#ff450044" : p.source === "StockTwits" ? "#00aaff44" : "#1da1f244"}`, borderRadius: 5, padding: "3px 7px", fontSize: 10, fontFamily: "monospace", color: p.source === "Reddit" ? "#ff4500" : p.source === "StockTwits" ? "#00aaff" : "#1da1f2", flexShrink: 0 }}>{p.source}</div>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 4 }}>
                     {p.subreddit && <span style={{ color: "var(--ts)", fontSize: 11 }}>{p.subreddit}</span>}
