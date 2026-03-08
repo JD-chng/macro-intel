@@ -1,72 +1,53 @@
 export const THEMES = [
-  { id: 1, name: "US Tariff Escalation", heat: 94, status: "Heating Fast", change: "+340%", articles: 847, trend: [20,35,42,68,74,89,94], color: "#ff4444", first_detected: "2025-01-15", description: "Broad-based tariff increases targeting China, EU, and EM economies. Second-order inflation pass-through and retaliatory trade actions accelerating.", tags: ["trade","tariffs","protectionism","inflation"], countries: ["USA","China","EU"], assets: ["USD","US Equities","EM FX"] },
-  { id: 2, name: "Fed Policy Paralysis", heat: 71, status: "Warm", change: "+18%", articles: 612, trend: [60,65,72,68,75,71,71], color: "#f0a500", first_detected: "2024-09-03", description: "Debate intensifying around timing of first rate cut. Inflation stickiness vs. labor market softening creating policy paralysis signals.", tags: ["fed","monetary policy","rates","inflation"], countries: ["USA"], assets: ["US Rates","USD","US Equities"] },
-  { id: 3, name: "China Property Stress", heat: 23, status: "Suspicious Silence ⚠", change: "-67%", articles: 89, trend: [78,65,55,48,38,29,23], color: "#bb86fc", first_detected: "2023-08-21", description: "Coverage has dropped sharply despite unresolved developer defaults. Possible regulatory information suppression or market fatigue.", tags: ["china","property","credit","default"], countries: ["China"], assets: ["EM Equities","EM FX","HY Credit"] },
-  { id: 4, name: "BOJ Normalization Risk", heat: 82, status: "Heating Fast", change: "+210%", articles: 431, trend: [15,22,34,50,63,76,82], color: "#ff4444", first_detected: "2024-11-12", description: "Bank of Japan signaling further YCC exit. Global carry trade unwind risk as JPY strengthens. Potential systemic cross-asset dislocation.", tags: ["boj","japan","carry trade","rates","JPY"], countries: ["Japan","USA"], assets: ["JPY","US Rates","EM FX"] },
-  { id: 5, name: "EU Energy Transition", heat: 45, status: "Cooling", change: "-22%", articles: 203, trend: [72,68,62,58,52,48,45], color: "#00d4ff", first_detected: "2022-06-08", description: "Green transition costs moderating media attention. Industrial competitiveness concerns vs. decarbonization targets.", tags: ["europe","energy","ESG","climate"], countries: ["Germany","France","EU"], assets: ["EUR","EU Equities","Energy"] },
-  { id: 6, name: "EM Currency Stress", heat: 68, status: "Heating Fast", change: "+89%", articles: 338, trend: [30,38,45,52,58,64,68], color: "#ff4444", first_detected: "2025-02-01", description: "Dollar strength and tariff shock creating dual pressure on EM FX reserves. Turkey, Mexico, South Africa most exposed.", tags: ["emerging markets","FX","dollar","reserves"], countries: ["Turkey","Mexico","South Africa","Brazil"], assets: ["EM FX","EM Equities","EM Bonds"] },
-  { id: 7, name: "AI Infrastructure Capex", heat: 77, status: "Warm", change: "+34%", articles: 521, trend: [45,52,58,65,70,74,77], color: "#f0a500", first_detected: "2024-03-15", description: "Hyperscaler capex acceleration driving semiconductor demand, power grid stress, and data center REIT valuations.", tags: ["AI","semiconductors","capex","tech"], countries: ["USA","Taiwan"], assets: ["US Equities","Semiconductors","Energy"] },
-  { id: 8, name: "Red Sea Disruption", heat: 38, status: "Cooling", change: "-41%", articles: 156, trend: [85,79,72,62,55,45,38], color: "#00d4ff", first_detected: "2023-12-19", description: "Shipping rerouting around Cape of Good Hope persisting but market attention waning. Container rates stabilizing.", tags: ["shipping","geopolitics","supply chain"], countries: ["Yemen","Egypt","Global"], assets: ["Oil","Shipping","Commodities"] },
+  { id: 1, name: "US Tariff Escalation", heat: 94, status: "Heating Fast", change: "+340%", articles: 847, trend: [20,35,42,68,74,89,94], trend90: Array.from({length:90},(_,i)=>Math.min(94,10+Math.floor(i*0.9)+Math.floor(Math.random()*8))), color: "#ff4444", first_detected: "2025-01-15", description: "Broad-based tariff increases targeting China, EU, and EM economies. Second-order inflation pass-through and retaliatory trade actions accelerating.", tags: ["trade","tariffs","protectionism","inflation"], countries: ["USA","China","EU","Mexico"], assets: ["USD","US Equities","EM FX","Consumer Staples"],
+    riskTree: { channels: ["Rates","FX","Equities","Credit","Geopolitics"], implications: { Rates: ["Inflationary pressure → Fed forced higher-for-longer → 2yr yield +40-60bps"], FX: ["USD initial strength → CNY managed devaluation → Asian EM currencies follow lower"], Equities: ["S&P earnings risk → margin compression → Consumer discretionary most exposed"], Credit: ["HY spreads widen 80-120bps → leveraged retail sector most at risk"], Geopolitics: ["US-China trade war escalation → WTO dispute filings → risk of broader decoupling"] } },
+    relatedArticles: ["s1","s4","s6"],
+  },
+  { id: 2, name: "Fed Policy Paralysis", heat: 71, status: "Warm", change: "+18%", articles: 612, trend: [60,65,72,68,75,71,71], trend90: Array.from({length:90},(_,i)=>50+Math.floor(Math.sin(i/10)*15)+Math.floor(Math.random()*6)), color: "#f0a500", first_detected: "2024-09-03", description: "Debate intensifying around timing of first rate cut. Inflation stickiness vs. labor market softening creating policy paralysis signals.", tags: ["fed","monetary policy","rates","inflation"], countries: ["USA"], assets: ["US Rates","USD","US Equities"],
+    riskTree: { channels: ["Rates","FX","Equities","Fiscal Policy"], implications: { Rates: ["Rate cut delay → duration assets (TLT) face continued selling → yield curve steepening"], FX: ["Fed-ECB divergence widens → EUR/USD falls toward parity → dollar wrecking ball"], Equities: ["Higher-for-longer discount rate → P/E compression → growth stocks most exposed"], "Fiscal Policy": ["Rising debt service costs → fiscal deficit widens → Treasury supply surge"] } },
+    relatedArticles: ["s1","s2"],
+  },
+  { id: 3, name: "China Property Stress", heat: 23, status: "Suspicious Silence ⚠", change: "-67%", articles: 89, trend: [78,65,55,48,38,29,23], trend90: Array.from({length:90},(_,i)=>Math.max(15,78-Math.floor(i*0.7)+Math.floor(Math.random()*5))), color: "#bb86fc", first_detected: "2023-08-21", description: "Coverage has dropped sharply despite unresolved developer defaults. Possible regulatory information suppression or market fatigue masking ongoing stress.", tags: ["china","property","credit","default"], countries: ["China","Hong Kong"], assets: ["EM Equities","EM FX","HY Credit","FXI"],
+    riskTree: { channels: ["Credit","Equities","Banking & Financial Stability","FX"], implications: { Credit: ["Developer defaults cascade → offshore USD bond market stress → contagion to EM HY"], Equities: ["China H-shares underperform → MSCI EM drag → foreign outflows accelerate"], "Banking & Financial Stability": ["Regional bank exposure to property → NPL ratios rise → PBOC forced intervention"], FX: ["CNY pressure → PBOC depletes FX reserves → managed devaluation risk"] } },
+    relatedArticles: ["s3"],
+  },
+  { id: 4, name: "BOJ Normalization Risk", heat: 82, status: "Heating Fast", change: "+210%", articles: 431, trend: [15,22,34,50,63,76,82], trend90: Array.from({length:90},(_,i)=>Math.min(82,10+Math.floor(i*0.8)+Math.floor(Math.random()*7))), color: "#ff4444", first_detected: "2024-11-12", description: "Bank of Japan signaling further YCC exit. Global carry trade unwind risk as JPY strengthens. Potential systemic cross-asset dislocation.", tags: ["boj","japan","carry trade","rates","JPY"], countries: ["Japan","USA"], assets: ["JPY","US Rates","EM FX","Nikkei"],
+    riskTree: { channels: ["FX","Rates","Equities","Banking & Financial Stability"], implications: { FX: ["JPY short squeeze → carry trade unwind → risk-off cascade across EM FX"], Rates: ["JGB selling by BOJ → Japanese life insurers repatriate US Treasuries → US yield spike"], Equities: ["Nikkei correction → global risk-off → S&P flash crash risk (Aug 2024 repeat)"], "Banking & Financial Stability": ["Leveraged carry positions forced unwind → prime broker margin calls → liquidity crunch"] } },
+    relatedArticles: ["s2"],
+  },
+  { id: 5, name: "EU Energy Transition", heat: 45, status: "Cooling", change: "-22%", articles: 203, trend: [72,68,62,58,52,48,45], trend90: Array.from({length:90},(_,i)=>Math.max(35,72-Math.floor(i*0.4)+Math.floor(Math.random()*5))), color: "#00d4ff", first_detected: "2022-06-08", description: "Green transition costs moderating media attention. Industrial competitiveness concerns vs. decarbonization targets.", tags: ["europe","energy","ESG","climate"], countries: ["Germany","France","EU"], assets: ["EUR","EU Equities","Energy"],
+    riskTree: { channels: ["Equities","Fiscal Policy","Geopolitics"], implications: { Equities: ["EU industrial margin compression → German auto sector underperforms → DAX drag"], "Fiscal Policy": ["Green subsidy burden → EU fiscal rules strain → sovereign spread widening periphery"], Geopolitics: ["Energy dependence on non-EU sources → geopolitical leverage risk → supply disruption"] } },
+    relatedArticles: [],
+  },
+  { id: 6, name: "EM Currency Stress", heat: 68, status: "Heating Fast", change: "+89%", articles: 338, trend: [30,38,45,52,58,64,68], trend90: Array.from({length:90},(_,i)=>Math.min(68,20+Math.floor(i*0.55)+Math.floor(Math.random()*6))), color: "#ff4444", first_detected: "2025-02-01", description: "Dollar strength and tariff shock creating dual pressure on EM FX reserves. Turkey, Mexico, South Africa most exposed.", tags: ["emerging markets","FX","dollar","reserves"], countries: ["Turkey","Mexico","South Africa","Brazil"], assets: ["EM FX","EM Equities","EM Bonds"],
+    riskTree: { channels: ["FX","Credit","Banking & Financial Stability","Geopolitics"], implications: { FX: ["USD wrecking ball → EM FX reserves depleted → managed devaluations → competitive spiral"], Credit: ["EM external debt refinancing costs surge → sovereign spread blowout → IMF intervention risk"], "Banking & Financial Stability": ["EM bank dollar liability mismatch → balance sheet stress → credit crunch"], Geopolitics: ["EM political instability from currency crisis → capital controls risk → foreign investor exit"] } },
+    relatedArticles: ["s4","s5"],
+  },
+  { id: 7, name: "AI Infrastructure Capex", heat: 77, status: "Warm", change: "+34%", articles: 521, trend: [45,52,58,65,70,74,77], trend90: Array.from({length:90},(_,i)=>Math.min(77,35+Math.floor(i*0.47)+Math.floor(Math.random()*5))), color: "#f0a500", first_detected: "2024-03-15", description: "Hyperscaler capex acceleration driving semiconductor demand, power grid stress, and data center REIT valuations.", tags: ["AI","semiconductors","capex","tech"], countries: ["USA","Taiwan"], assets: ["US Equities","Semiconductors","Energy","REITs"],
+    riskTree: { channels: ["Equities","Commodities","Fiscal Policy"], implications: { Equities: ["Hyperscaler capex → semiconductor supercycle → NVDA/TSMC outperform → concentration risk"], Commodities: ["Data center power demand → electricity grid stress → copper/uranium demand surge"], "Fiscal Policy": ["AI defense spending → government AI contracts → fiscal multiplier effect"] } },
+    relatedArticles: [],
+  },
+  { id: 8, name: "Red Sea Disruption", heat: 38, status: "Cooling", change: "-41%", articles: 156, trend: [85,79,72,62,55,45,38], trend90: Array.from({length:90},(_,i)=>Math.max(25,85-Math.floor(i*0.67)+Math.floor(Math.random()*6))), color: "#00d4ff", first_detected: "2023-12-19", description: "Shipping rerouting around Cape of Good Hope persisting but market attention waning. Container rates stabilizing.", tags: ["shipping","geopolitics","supply chain"], countries: ["Yemen","Egypt","Global"], assets: ["Oil","Shipping","Commodities"],
+    riskTree: { channels: ["Commodities","Geopolitics","Equities"], implications: { Commodities: ["Container rate normalization → shipping cost inflation fades → supply chain resilience improving"], Geopolitics: ["Houthi attacks persist → insurance premium elevated → NATO naval presence increasing"], Equities: ["Shipping stocks underperform → logistics sector margin recovery → retail inventory restock"] } },
+    relatedArticles: [],
+  },
 ];
 
-export const CROSS_ASSET = [
-  { asset: "US Rates", impact: 92, direction: "negative", detail: "yields rising sharply", magnitude: "CRITICAL" },
-  { asset: "USD Index", impact: 78, direction: "positive", detail: "dollar strengthening", magnitude: "HIGH" },
-  { asset: "EM Currencies", impact: -85, direction: "negative", detail: "severe depreciation pressure", magnitude: "CRITICAL" },
-  { asset: "US Equities", impact: -62, direction: "negative", detail: "earnings risk, P/E compression", magnitude: "HIGH" },
-  { asset: "EM Equities", impact: -88, direction: "negative", detail: "twin shock: FX + trade", magnitude: "CRITICAL" },
-  { asset: "HY Credit", impact: -71, direction: "negative", detail: "spreads widening 80-120bps", magnitude: "HIGH" },
-  { asset: "Gold", impact: 45, direction: "positive", detail: "safe haven bid", magnitude: "MEDIUM" },
-  { asset: "Oil/Commodities", impact: -38, direction: "negative", detail: "demand slowdown fears", magnitude: "MEDIUM" },
-  { asset: "JPY", impact: 55, direction: "positive", detail: "safe haven + BOJ unwind", magnitude: "HIGH" },
+export const ARTICLES = [
+  { id: "s1", title: "Federal Reserve signals prolonged pause as tariff inflation reshapes outlook", source: "Reuters", time: "2h ago", themes: ["Fed Policy Paralysis","US Tariff Escalation"], heat: 91, url: "https://reuters.com", summary: "Fed officials cited sweeping tariff increases as key reason to hold borrowing costs steady. Chair Powell said the bank needs greater confidence inflation is moving toward 2% target.", isLive: false },
+  { id: "s2", title: "BOJ governor Ueda hints at further rate normalization in Q3 meeting", source: "Financial Times", time: "4h ago", themes: ["BOJ Normalization Risk","Fed Policy Paralysis"], heat: 84, url: "https://ft.com", summary: "Bank of Japan governor signals H2 2026 normalization pathway. Markets repricing global carry trade risk as JPY strengthens past key technical levels.", isLive: false },
+  { id: "s3", title: "China's Evergrande liquidators hit new obstacle in offshore asset recovery", source: "Bloomberg", time: "6h ago", themes: ["China Property Stress"], heat: 23, url: "https://bloomberg.com", summary: "Liquidators face mounting obstacles recovering offshore assets from collapsed developer. Coverage remains thin despite unresolved obligations.", isLive: false },
+  { id: "s4", title: "MSCI EM index suffers third consecutive week of outflows amid dollar surge", source: "WSJ", time: "8h ago", themes: ["EM Currency Stress","US Tariff Escalation"], heat: 78, url: "https://wsj.com", summary: "Emerging market equities face third week of sustained outflows as dollar index breaks above key resistance. EM central banks intervening.", isLive: false },
+  { id: "s5", title: "Mexican peso at 18-month low as tariff fears accelerate capital flight", source: "Reuters", time: "10h ago", themes: ["EM Currency Stress"], heat: 72, url: "https://reuters.com", summary: "MXN weakens sharply on fears of escalating US tariff regime. Banxico expected to hold rates at emergency meeting.", isLive: false },
+  { id: "s6", title: "Gold surges past $3,200 as institutional safe-haven demand intensifies", source: "Reuters", time: "12h ago", themes: ["US Tariff Escalation","Fed Policy Paralysis"], heat: 75, url: "https://reuters.com", summary: "Gold breaks record as institutional demand surges on tariff uncertainty. Central bank buying accelerates.", isLive: false },
+  { id: "s7", title: "NVIDIA capex guidance signals AI infrastructure super-cycle entering second phase", source: "FT", time: "14h ago", themes: ["AI Infrastructure Capex"], heat: 77, url: "https://ft.com", summary: "NVIDIA raises capex guidance citing surging data center demand. Power infrastructure constraints emerging as key bottleneck.", isLive: false },
+  { id: "s8", title: "EU carbon border adjustment mechanism draws US trade retaliation warning", source: "Bloomberg", time: "1d ago", themes: ["EU Energy Transition","US Tariff Escalation"], heat: 55, url: "https://bloomberg.com", summary: "US trade representative warns EU carbon border mechanism could trigger retaliatory tariffs under WTO dispute.", isLive: false },
 ];
 
-export const RISK_TREE = {
-  event: "US Tariff Escalation — 145% China Tariffs",
-  channels: [
-    { name: "Rates", icon: "📈", color: "#f0a500", implications: [
-      { text: "Inflationary pressure from import price pass-through", children: [
-        { text: "Fed forced to maintain higher-for-longer stance", children: [
-          { text: "2yr Treasury yield rises 40-60bps" },
-          { text: "Duration assets (TLT) face continued selling" }
-        ]}
-      ]},
-      { text: "Supply chain inflation embedded in CPI ex-energy", children: [
-        { text: "Rate cut expectations pushed to H2 2026" }
-      ]}
-    ]},
-    { name: "FX", icon: "💱", color: "#00d4ff", implications: [
-      { text: "USD initial strength on hawkish Fed repricing", children: [
-        { text: "CNY managed devaluation accelerates", children: [
-          { text: "Asian EM currencies follow CNY lower" },
-          { text: "MXN, BRL face dual tariff + dollar pressure" }
-        ]}
-      ]},
-      { text: "EUR weakness on EU-US trade friction", children: [
-        { text: "ECB-Fed divergence widens" }
-      ]}
-    ]},
-    { name: "Equities", icon: "📉", color: "#ff4444", implications: [
-      { text: "S&P 500 earnings risk from margin compression", children: [
-        { text: "Consumer discretionary most exposed (AMZN, WMT)", children: [
-          { text: "Q2 earnings guide-downs accelerating" }
-        ]},
-        { text: "Tech hardware — AAPL iPhone cost +$200-350 estimate" }
-      ]},
-      { text: "EM equities — China H-shares, MSCI EM underperform", children: [
-        { text: "China stimulus offset insufficient at current tariff levels" }
-      ]}
-    ]},
-    { name: "Credit", icon: "🔗", color: "#bb86fc", implications: [
-      { text: "HY spreads widen 80-120bps in tariff shock scenario", children: [
-        { text: "Leveraged retail / consumer sector most at risk", children: [
-          { text: "Default cycle could front-run recession" }
-        ]}
-      ]},
-      { text: "IG spreads widen modestly — flight to quality within credit" }
-    ]}
-  ]
-};
+export const RISK_CHANNELS_ALL = ["Rates","FX","Equities","Credit","Commodities","Real Estate","Banking & Financial Stability","Geopolitics","Fiscal Policy"];
+
+export const CHANNEL_ICONS = { Rates: "📈", FX: "💱", Equities: "📉", Credit: "🔗", Commodities: "🛢", "Real Estate": "🏢", "Banking & Financial Stability": "🏦", Geopolitics: "🌍", "Fiscal Policy": "💰" };
+export const CHANNEL_COLORS = { Rates: "#f0a500", FX: "#00d4ff", Equities: "#ff4444", Credit: "#bb86fc", Commodities: "#ff8c00", "Real Estate": "#4db6ac", "Banking & Financial Stability": "#ef5350", Geopolitics: "#26a69a", "Fiscal Policy": "#ab47bc" };
 
 export const GRAPH_NODES = [
   { id: "US Tariffs", group: "theme", size: 22, color: "#ff4444" },
@@ -83,6 +64,7 @@ export const GRAPH_NODES = [
   { id: "PBOC", group: "institution", size: 14, color: "#00e676" },
   { id: "US CPI", group: "indicator", size: 12, color: "#ffeb3b" },
   { id: "JPY Carry", group: "indicator", size: 12, color: "#ffeb3b" },
+  { id: "EM Reserves", group: "indicator", size: 11, color: "#ffeb3b" },
 ];
 
 export const GRAPH_LINKS = [
@@ -103,22 +85,76 @@ export const GRAPH_LINKS = [
   { source: "EM FX Stress", target: "Gold", weight: 0.6, label: "safe haven" },
   { source: "US Rates", target: "S&P 500", weight: 0.75, label: "discount rate" },
   { source: "JPY Carry", target: "EM FX Stress", weight: 0.65, label: "global risk-off" },
+  { source: "EM FX Stress", target: "EM Reserves", weight: 0.8, label: "reserve drain" },
+  { source: "EM Reserves", target: "China Stress", weight: 0.5, label: "contagion pressure" },
 ];
 
 export const EMERGING = [
-  { theme: "BOJ Normalization Risk", prob: 84, conf: 78, signal: "Source migration: niche → FT/WSJ front page. Graph centrality +340% in 14 days.", drivers: ["JPY at 30yr lows", "BOJ meetings escalating", "JGB yield pressure"] },
-  { theme: "EU Auto Tariff Retaliation", prob: 72, conf: 65, signal: "Mention growth +180% from low base. EU trade commissioner statements escalating.", drivers: ["US tariff spillover", "EU election pressure", "German auto lobby"] },
-  { theme: "US Commercial Real Estate Wave 2", prob: 61, conf: 58, signal: "Office maturity wall approaching. Regional bank exposure resurging in analyst notes.", drivers: ["Rate-locked refinancing", "WFH structural shift", "Bank earnings risk"] },
-  { theme: "India Macro Ascendance", prob: 55, conf: 62, signal: "Positive divergence from EM peers. FII inflow acceleration.", drivers: ["China+1 supply chain", "Modi 3.0 reforms", "Demographics"] },
-  { theme: "Semiconductor Supply Cycle", prob: 48, conf: 52, signal: "AI capex cycle creating inventory overhang in legacy nodes.", drivers: ["TSMC capex guidance", "ASML bookings", "China export controls"] },
+  { theme: "BOJ Normalization Risk", prob: 84, conf: 78,
+    confBreakdown: { "Mention Velocity": 30, "Source Migration": 28, "Graph Centrality": 25, "Policy Proximity": 17 },
+    signal: "Source migration: niche → FT/WSJ front page. Graph centrality +340% in 14 days.",
+    drivers: ["JPY at 30yr lows", "BOJ meetings escalating", "JGB yield pressure"],
+    whyBreakout: "Three converging catalysts: (1) JPY technical break below ¥140 psychological level triggering systematic carry unwind, (2) BOJ policy meeting in 6 weeks with Ueda's recent hawkish language shift, (3) Japanese life insurers signaling intent to repatriate overseas bond holdings. This combination creates a systemic risk event with global cross-asset contagion potential.",
+    sources: [{ title: "BOJ governor Ueda hints at further rate normalization", source: "FT", url: "https://ft.com" }, { title: "JPY carry trade positions reach record levels — BIS quarterly review", source: "BIS", url: "https://bis.org" }, { title: "Japanese life insurers flag overseas bond repatriation plans", source: "Nikkei", url: "https://nikkei.com" }],
+  },
+  { theme: "EU Auto Tariff Retaliation", prob: 72, conf: 65,
+    confBreakdown: { "Mention Velocity": 35, "Source Migration": 20, "Graph Centrality": 18, "Policy Proximity": 27 },
+    signal: "Mention growth +180% from low base. EU trade commissioner statements escalating.",
+    drivers: ["US tariff spillover", "EU election pressure", "German auto lobby"],
+    whyBreakout: "EU-US trade relationship deteriorating on two fronts simultaneously: (1) US auto tariffs announced with no exemption for EU, (2) EU carbon border mechanism drawing US retaliation threats. German auto industry — already structurally challenged by EV transition — faces existential demand shock if retaliatory tariffs escalate to 25%+.",
+    sources: [{ title: "EU trade commissioner warns of proportional tariff response", source: "Reuters", url: "https://reuters.com" }, { title: "German auto lobby demands emergency meeting with Scholz on US tariff threat", source: "Handelsblatt", url: "https://handelsblatt.com" }],
+  },
+  { theme: "US Commercial Real Estate Wave 2", prob: 61, conf: 58,
+    confBreakdown: { "Mention Velocity": 22, "Source Migration": 18, "Graph Centrality": 30, "Policy Proximity": 30 },
+    signal: "Office maturity wall approaching. Regional bank exposure resurging in analyst notes.",
+    drivers: ["Rate-locked refinancing", "WFH structural shift", "Bank earnings risk"],
+    whyBreakout: "$500bn+ of CRE loans maturing in 2026-2027 at rates 200-300bps above origination levels. Regional banks hold 70% of this exposure. Structural office vacancy rates (18%+ in major metros) make refinancing economically nonviable for many properties. Fed higher-for-longer stance removes the rescue scenario.",
+    sources: [{ title: "CRE maturity wall: $500bn in loans face refinancing at impossible rates", source: "Bloomberg", url: "https://bloomberg.com" }, { title: "Regional bank CRE exposure flagged by Fed stress test", source: "WSJ", url: "https://wsj.com" }],
+  },
+  { theme: "India Macro Ascendance", prob: 55, conf: 62,
+    confBreakdown: { "Mention Velocity": 28, "Source Migration": 32, "Graph Centrality": 15, "Policy Proximity": 25 },
+    signal: "Positive divergence from EM peers. FII inflow acceleration.",
+    drivers: ["China+1 supply chain", "Modi 3.0 reforms", "Demographics"],
+    whyBreakout: "India is the primary beneficiary of China+1 supply chain diversification. Apple manufacturing shift to India accelerating. Young demographic profile (median age 28) driving domestic consumption. FII inflows at 5-year highs. Risk: rupee appreciation could dampen export competitiveness.",
+    sources: [{ title: "Apple accelerates India manufacturing — 25% of iPhones by 2026", source: "Reuters", url: "https://reuters.com" }, { title: "India overtakes China in FII inflows for first time since 2008", source: "FT", url: "https://ft.com" }],
+  },
+  { theme: "Semiconductor Supply Cycle", prob: 48, conf: 52,
+    confBreakdown: { "Mention Velocity": 20, "Source Migration": 15, "Graph Centrality": 35, "Policy Proximity": 30 },
+    signal: "AI capex cycle creating inventory overhang in legacy nodes.",
+    drivers: ["TSMC capex guidance", "ASML bookings", "China export controls"],
+    whyBreakout: "AI-driven demand surge masking inventory overhang in legacy 28nm+ nodes. ASML order book showing bifurcation: EUV (advanced) overbooked, DUV (legacy) softening. China export controls forcing domestic fab buildout — structural oversupply risk in 3-5yr horizon.",
+    sources: [{ title: "ASML flags softening legacy node orders despite AI demand surge", source: "Bloomberg", url: "https://bloomberg.com" }],
+  },
 ];
 
 export const MEMORY = [
-  { date: "2025-10-14", query: "Fed policy", summary: "Consensus leaned dovish pivot. Labor market data showed NFP +89k (below 150k threshold). Analysis predicted first cut Dec 2025.", themes: ["Fed Policy"], heat: 65 },
-  { date: "2025-09-03", query: "China property", summary: "Evergrande liquidation triggered fresh contagion fears. Heatmap showed CRITICAL negative on EM Equities. 3 new developers missed coupon payments.", themes: ["China Property Stress"], heat: 78 },
-  { date: "2025-08-05", query: "BOJ carry unwind", summary: "JPY short squeeze caused S&P flash crash -3.2% in single session. Systemic carry unwind risk from ¥155 threshold breach flagged.", themes: ["BOJ Normalization Risk"], heat: 92 },
-  { date: "2025-07-21", query: "US tariffs", summary: "Initial 10% baseline tariff announced. Analysis underestimated escalation risk — revised upward to 145% China scenario within 6 weeks.", themes: ["US Tariff Escalation"], heat: 45 },
+  { id: "m1", date: "2025-10-14", query: "Fed policy", summary: "Consensus leaned dovish pivot. Labor market data showed NFP +89k (below 150k threshold). Analysis predicted first cut Dec 2025.", themes: ["Fed Policy Paralysis"], heat: 65, accuracy: "Partially correct — cut delayed to 2026 due to tariff inflation", articleIds: ["s1"] },
+  { id: "m2", date: "2025-09-03", query: "China property", summary: "Evergrande liquidation triggered fresh contagion fears. Heatmap showed CRITICAL negative on EM Equities. 3 new developers missed coupon payments.", themes: ["China Property Stress"], heat: 78, accuracy: "Correct — stress persisted, coverage dropped (suspicious silence pattern)", articleIds: ["s3"] },
+  { id: "m3", date: "2025-08-05", query: "BOJ carry unwind", summary: "JPY short squeeze caused S&P flash crash -3.2% in single session. Systemic carry unwind risk from ¥155 threshold breach flagged.", themes: ["BOJ Normalization Risk"], heat: 92, accuracy: "Correct — exactly as predicted, ¥140 remains next key level", articleIds: ["s2"] },
+  { id: "m4", date: "2025-07-21", query: "US tariffs", summary: "Initial 10% baseline tariff announced. Analysis underestimated escalation risk — revised upward to 145% China scenario within 6 weeks.", themes: ["US Tariff Escalation"], heat: 45, accuracy: "Incorrect — severity underestimated, escalation faster than modeled", articleIds: ["s1","s6"] },
 ];
+
+export const WEEKLY_BRIEF = {
+  week: "Week of March 3, 2026",
+  top_themes: [
+    { name: "US Tariff Escalation", status: "🔥 Heating Fast", note: "145% China tariffs now in effect. Second-order inflation pass-through accelerating. Watch Q2 earnings guide-downs.", themeId: 1 },
+    { name: "BOJ Normalization Risk", status: "🔥 Heating Fast", note: "Ueda signals H2 2026 normalization. Carry trade unwind risk at critical juncture. ¥140 is the line in the sand.", themeId: 4 },
+    { name: "Fed Policy Paralysis", status: "📊 Warm", note: "Tariff inflation vs. growth slowdown creating policy paralysis. Cut timeline pushed to late 2026.", themeId: 2 },
+    { name: "China Property Crisis", status: "⚠ Suspicious Silence", note: "Coverage dropped 67% despite unresolved developer obligations. Silence itself is the signal.", themeId: 3 },
+  ],
+  key_risks: [
+    { risk: "USD/JPY break of ¥140 could trigger systemic carry unwind", themes: ["BOJ Normalization Risk", "EM Currency Stress"], severity: "CRITICAL" },
+    { risk: "Q2 earnings season: margin compression wave incoming", themes: ["US Tariff Escalation"], severity: "HIGH" },
+    { risk: "EM external debt refinancing stress intensifying", themes: ["EM Currency Stress", "Fed Policy Paralysis"], severity: "HIGH" },
+    { risk: "US-EU trade escalation adds second front to tariff shock", themes: ["US Tariff Escalation"], severity: "MEDIUM" },
+  ],
+  watch_next: [
+    { event: "US CPI Release", date: "Tue Mar 10", importance: "CRITICAL", themes: ["Fed Policy Paralysis", "US Tariff Escalation"] },
+    { event: "Fed Chair Powell Speech", date: "Wed Mar 11", importance: "HIGH", themes: ["Fed Policy Paralysis"] },
+    { event: "BOJ Meeting Minutes", date: "Thu Mar 12", importance: "HIGH", themes: ["BOJ Normalization Risk"] },
+    { event: "China Trade Balance", date: "Fri Mar 13", importance: "MEDIUM", themes: ["China Property Stress", "US Tariff Escalation"] },
+  ],
+};
 
 export const MARKET_PULSE = [
   { name: "USD Index", value: "+0.84%", dir: "up" },
@@ -127,28 +163,42 @@ export const MARKET_PULSE = [
   { name: "Gold", value: "+1.62%", dir: "up" },
   { name: "JPY/USD", value: "141.3", dir: "up" },
   { name: "WTI Oil", value: "-0.38%", dir: "down" },
-  { name: "VIX", value: "28.4 ↑", dir: "down" },
-  { name: "HY Sprd", value: "487bps ↑", dir: "down" },
+  { name: "VIX", value: "28.4", dir: "down" },
+  { name: "HY Sprd", value: "487bps", dir: "down" },
 ];
 
-export const WEEKLY_BRIEF = {
-  week: "Week of March 3, 2026",
-  top_themes: [
-    { name: "US Tariff Escalation", status: "🔥 Heating Fast", note: "145% China tariffs now in effect. Second-order inflation pass-through accelerating." },
-    { name: "BOJ Normalization Risk", status: "🔥 Heating Fast", note: "Ueda signals H2 2026 normalization. Carry trade unwind risk at critical juncture." },
-    { name: "Fed Policy Paralysis", status: "📊 Warm", note: "Tariff inflation vs. growth slowdown creating policy paralysis. Cut timeline pushed to late 2026." },
-    { name: "China Property Crisis", status: "⚠ Suspicious Silence", note: "Coverage dropped 67% despite unresolved developer obligations." },
+export const SOCIAL_DATA = {
+  fearGreed: 28,
+  fearGreedLabel: "Fear",
+  fearGreedBySource: { Reddit: 24, StockTwits: 31, "Twitter/X": 26, YouTube: 35 },
+  leadTimeAvg: 4.2,
+  trending: [
+    { topic: "Fed pivot dead", mentions: 8420, change: "+340%", sentiment: "bearish", sources: ["Reddit","Twitter/X"], themeId: 2 },
+    { topic: "Tariff recession", mentions: 6891, change: "+280%", sentiment: "bearish", sources: ["Reddit","StockTwits"], themeId: 1 },
+    { topic: "JPY squeeze incoming", mentions: 4230, change: "+210%", sentiment: "bearish", sources: ["Twitter/X","Reddit"], themeId: 4 },
+    { topic: "Gold $3500 EOY", mentions: 3890, change: "+156%", sentiment: "bullish", sources: ["StockTwits","YouTube"], themeId: 1 },
+    { topic: "EM meltdown", mentions: 2940, change: "+189%", sentiment: "bearish", sources: ["Twitter/X","Reddit"], themeId: 6 },
+    { topic: "China stimulus bazooka", mentions: 1820, change: "+44%", sentiment: "bullish", sources: ["Reddit","Twitter/X"], themeId: 3 },
   ],
-  key_risks: [
-    "USD/JPY break of ¥140 could trigger systemic carry unwind",
-    "Q2 earnings season: margin compression wave incoming",
-    "EM external debt refinancing stress intensifying",
-    "US-EU trade escalation adds second front to tariff shock",
+  sentimentShifts: [
+    { topic: "US Equities", from: "Neutral", to: "Bearish", hoursAgo: 6, magnitude: "Strong", themeId: 1 },
+    { topic: "Gold", from: "Neutral", to: "Bullish", hoursAgo: 12, magnitude: "Moderate", themeId: 1 },
+    { topic: "JPY", from: "Bearish", to: "Bullish", hoursAgo: 18, magnitude: "Strong", themeId: 4 },
   ],
-  watch_next: [
-    { event: "US CPI Release", date: "Tue Mar 10", importance: "CRITICAL" },
-    { event: "Fed Chair Powell Speech", date: "Wed Mar 11", importance: "HIGH" },
-    { event: "BOJ Meeting Minutes", date: "Thu Mar 12", importance: "HIGH" },
-    { event: "China Trade Balance", date: "Fri Mar 13", importance: "MEDIUM" },
+  contrarian: [
+    { topic: "China Recovery", socialSentiment: 65, newsSentiment: 18, divergence: 47, signal: "Social far more bullish than news — possible early turn or retail trap", themeId: 3 },
+    { topic: "US Dollar", socialSentiment: 22, newsSentiment: 78, divergence: -56, signal: "News strongly bullish on USD, social community increasingly skeptical — watch for reversal", themeId: 2 },
+  ],
+  leadTimeHistory: [
+    { theme: "BOJ Carry Unwind", socialBuzzDate: "Aug 3", newsPickupDate: "Aug 5", leadHours: 48 },
+    { theme: "SVB Collapse", socialBuzzDate: "Mar 8", newsPickupDate: "Mar 10", leadHours: 36 },
+    { theme: "EM FX Stress", socialBuzzDate: "Feb 28", newsPickupDate: "Mar 3", leadHours: 72 },
+    { theme: "US Tariff Escalation", socialBuzzDate: "Jan 13", newsPickupDate: "Jan 15", leadHours: 52 },
+  ],
+  posts: [
+    { id: "p1", source: "Reddit", subreddit: "r/MacroEconomics", author: "macro_hawk_99", content: "The carry trade unwind risk is being severely underpriced. ¥140 breaks and we're looking at a repeat of August 2024 but 3x worse. Position accordingly.", upvotes: 2847, comments: 341, time: "3h ago", sentiment: "bearish", themeId: 4 },
+    { id: "p2", source: "StockTwits", author: "$GOLD_BULL", content: "Gold breaking $3200 with conviction. When institutions start moving to safe havens this hard, something big is coming. #Gold #MacroRisk", upvotes: 1203, comments: 89, time: "5h ago", sentiment: "bullish", themeId: 1 },
+    { id: "p3", source: "Reddit", subreddit: "r/investing", author: "EM_watcher", content: "The MXN move today is insane. Peso down 4% in a week. Banxico can't fight both tariff shock AND dollar strength. EM crisis 2.0 loading...", upvotes: 891, comments: 156, time: "7h ago", sentiment: "bearish", themeId: 6 },
+    { id: "p4", source: "Twitter/X", author: "@MacroAlf", content: "Fed is stuck. Tariff inflation on one side, growth slowdown on the other. This is not 2022. The next move could be a CUT despite inflation being above target. Stagflation playbook incoming.", upvotes: 4521, comments: 892, time: "9h ago", sentiment: "bearish", themeId: 2 },
   ],
 };
