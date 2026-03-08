@@ -30,7 +30,7 @@ export function ArticleFeedPanel({ liveArticles }) {
       <div className="card">
         {filtered.map((a, i) => (
           <div key={a.id || i} id={`article-${a.id}`}
-            style={{ padding: "12px 0", borderBottom: "1px solid var(--border)", background: a.id === articleModal ? "var(--amber-glow)" : "transparent", margin: a.id === articleModal ? "0 -20px", padding: a.id === articleModal ? "12px 20px" : "12px 0", transition: "all .3s", borderRadius: a.id === articleModal ? 6 : 0 }}>
+            style={{ padding: a.id === articleModal ? "12px 20px" : "12px 0", borderBottom: "1px solid var(--border)", background: a.id === articleModal ? "var(--amber-glow)" : "transparent", margin: a.id === articleModal ? "0 -20px" : "0", transition: "all .3s", borderRadius: a.id === articleModal ? 6 : 0 }}>
             <div style={{ display: "flex", gap: 10 }}>
               <div style={{ width: 6, height: 6, borderRadius: "50%", background: a.isLive ? "var(--green)" : heatColor(a.heat||60), marginTop: 5, flexShrink: 0 }} className={a.isLive ? "pulse" : ""} />
               <div style={{ flex: 1 }}>
