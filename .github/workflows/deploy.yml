@@ -29,6 +29,13 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+      - name: Debug secrets
+        run: |
+          echo "ANTHROPIC key length: ${#VITE_ANTHROPIC_KEY}"
+          echo "AV key length: ${#VITE_AV_KEY}"
+        env:
+          VITE_ANTHROPIC_KEY: ${{ secrets.VITE_ANTHROPIC_KEY }}
+          VITE_AV_KEY: ${{ secrets.VITE_AV_KEY }}
 
       - name: Build
         run: npm run build
