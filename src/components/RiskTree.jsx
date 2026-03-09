@@ -44,7 +44,7 @@ function parseAITree(text, channels) {
   return result;
 }
 
-export default function RiskTreePanel({ apiKey }) {
+export default function RiskTreePanel(props) {
   const [triggerMode, setTriggerMode] = useState("theme"); // "theme" | "custom"
   const [selectedTheme, setSelectedTheme] = useState(THEMES[0]);
   const [customEvent, setCustomEvent] = useState("");
@@ -64,7 +64,7 @@ export default function RiskTreePanel({ apiKey }) {
     setLoading(true); setTreeData(null); setBullBear(null);
     try {
       const channelList = selectedChannels.join(", ");
-      const text = await callClaude(apiKey,
+      const text = await callClaude(
         "You are a macro risk analyst. Generate a structured causal risk tree with specific, quantitative implications. Format each channel clearly labeled.",
         `Trigger event: "${triggerEvent}"\n\nAnalyze impact across these channels: ${channelList}\n\nFor each channel provide 2-3 specific causal implications (e.g. "Higher-for-longer rates → duration assets (TLT) sell off → 10Y yield +40-60bps"). Be specific and quantitative.\n\nAlso provide:\nBULL CASE: (one sentence — what makes this scenario less severe)\nBEAR CASE: (one sentence — what makes this scenario worse)\n\nFormat:\n[CHANNEL NAME]\n- implication 1\n- implication 2\n\nBULL CASE: ...\nBEAR CASE: ...`,
         1200

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useApp } from "../context/AppContext.jsx";
-import { ARTICLES, THEMES } from "../data/seed.js";
+
 
 export const CSS_VARS = `
   :root {
@@ -38,7 +38,6 @@ export const heatEmoji = (h) => h > 80 ? "🔴" : h > 60 ? "🟡" : h > 35 ? "�
 export const impColor = (d) => d === "positive" ? "var(--green)" : d === "negative" ? "var(--red)" : "var(--yellow)";
 
 export const Sparkline = ({ data, color }) => {
-  if (!data?.length || data.length < 2) return <svg width={72} height={28} />;
   const max = Math.max(...data), min = Math.min(...data), W = 72, H = 28;
   const pts = data.map((v, i) => `${(i / (data.length - 1)) * W},${H - ((v - min) / (max - min + 0.1)) * H}`).join(" ");
   return (
@@ -82,25 +81,27 @@ export const MarkdownText = ({ text }) => {
 };
 
 // ─── THEME DETAIL POPUP ────────────────────────────────────────────────────────
-export const ThemeDetailPopup = ({ theme, onClose, apiKey, onOpenArticles }) => {
+export const ThemeDetailPopup = ({ theme, onClose, onOpenArticles, articles = [] }) => {
   const [aiSummary, setAiSummary] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
-  const relatedArticles = ARTICLES.filter(a => theme.relatedArticles?.includes(a.id));
+  const relatedArticles = articles.filter(a => a.themes?.includes(theme.name)).slice(0, 5);
+
+  // Read key from env if not passed as prop
+  const resolvedKey = import.meta.env.VITE_ANTHROPIC_KEY || "";
 
   useEffect(() => {
-    if (!apiKey || apiKey === "DEMO") return;
+    if (!resolvedKey) return;
     setAiLoading(true);
-    callClaude(apiKey,
+    callClaude(resolvedKey,
       "You are a senior macro analyst. Provide a 3-sentence AI summary of latest developments for a macro theme. Be specific and forward-looking.",
-      `Theme: ${theme.name}\nHeat: ${theme.heat}/100\nStatus: ${theme.status}\nDescription: ${theme.description}\nTags: ${theme.tags.join(", ")}\n\nSummarize latest developments and key forward-looking risk in 3 sentences.`
+      `Theme: ${theme.name}\nHeat: ${theme.heat}/100\nStatus: ${theme.status}\nDescription: ${theme.description}\nTags: ${(theme.tags||[]).join(", ")}\n\nSummarize latest developments and key forward-looking risk in 3 sentences.`
     ).then(t => { setAiSummary(t); setAiLoading(false); }).catch(() => setAiLoading(false));
-  }, [theme.id, apiKey]);
+  }, [theme.id, resolvedKey]);
 
-  const trend90 = theme.trend90 || theme.trend || [];
+  const trend90 = theme.trend90 || theme.trend;
   const W = 380, H = 80;
-  const hasTrend = trend90.length >= 2;
-  const max = hasTrend ? Math.max(...trend90) : 100, min = hasTrend ? Math.min(...trend90) : 0;
-  const pts = hasTrend ? trend90.map((v, i) => `${(i / (trend90.length - 1)) * W},${H - ((v - min) / (max - min + 0.1)) * H}`).join(" ") : "";
+  const max = Math.max(...trend90), min = Math.min(...trend90);
+  const pts = trend90.map((v, i) => `${(i / (trend90.length - 1)) * W},${H - ((v - min) / (max - min + 0.1)) * H}`).join(" ");
 
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 600, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(6,7,9,0.8)" }} onClick={onClose}>
@@ -171,7 +172,7 @@ export const ThemeDetailPopup = ({ theme, onClose, apiKey, onOpenArticles }) => 
           <div className="mono" style={{ fontSize: 10, color: "var(--amber)", marginBottom: 8 }}>AI ANALYSIS</div>
           {aiLoading ? <div style={{ display: "flex", alignItems: "center", gap: 8 }}><Spinner /><span style={{ color: "var(--ts)", fontSize: 12 }}>Generating analysis...</span></div>
             : aiSummary ? <p style={{ color: "var(--ts)", fontSize: 13, lineHeight: 1.6 }}>{aiSummary}</p>
-            : <p style={{ color: "var(--tm)", fontSize: 12 }}>Enter Anthropic API key to generate AI analysis</p>}
+            : <p style={{ color: "var(--tm)", fontSize: 12 }}>Generating AI analysis...</p>}
         </div>
 
         {/* Related articles */}
@@ -272,11 +273,12 @@ export const ArticleFeedModal = ({ onClose }) => {
 };
 
 // ─── CLAUDE API ───────────────────────────────────────────────────────────────
-export async function callClaude(apiKey, systemPrompt, userPrompt, maxTokens = 800) {
-  if (!apiKey || apiKey === "DEMO") return "[ Demo mode — enter an Anthropic API key to see live AI responses ]";
+export async function callClaude(systemPrompt, userPrompt, maxTokens = 800) {
+  const key = import.meta.env.VITE_ANTHROPIC_KEY || "";
+  if (!key) return "[ API key not configured — check VITE_ANTHROPIC_KEY in GitHub secrets ]";
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
-    headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
+    headers: { "Content-Type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
     body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: maxTokens, system: systemPrompt, messages: [{ role: "user", content: userPrompt }] }),
   });
   const data = await res.json();
