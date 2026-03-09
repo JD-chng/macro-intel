@@ -28,7 +28,8 @@ async function fetchAlphaVantage(ticker, avKey) {
   } catch { return null; }
 }
 
-export default function OverviewPanel({ apiKey, avKey, liveArticles }) {
+export default function OverviewPanel({ apiKey, avKey, liveArticles, articles = [] }) {
+  const allArticles = liveArticles || articles.filter(a => a.is_live) || [];
   const [searchQ, setSearchQ] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [showSearch, setShowSearch] = useState(false);
@@ -95,7 +96,7 @@ export default function OverviewPanel({ apiKey, avKey, liveArticles }) {
       {/* Status Bar */}
       <div style={{ gridColumn: "1/-1" }} className="card">
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14 }}>
-          {[["Active Themes", "8", "var(--amber)"], ["Live Articles", liveArticles.length > 0 ? liveArticles.length + " live" : "847 seeded", "var(--cyan)"], ["🔴 Alerts", "3 active", "var(--red)"], ["Engine Status", "Operational ●", "var(--green)"]].map(([l, v, c]) => (
+          {[["Active Themes", "8", "var(--amber)"], ["Live Articles", allArticles.length > 0 ? allArticles.length + " live" : "Loading...", "var(--cyan)"], ["🔴 Alerts", "3 active", "var(--red)"], ["Engine Status", "Operational ●", "var(--green)"]].map(([l, v, c]) => (
             <div key={l} style={{ background: "var(--bg1)", borderRadius: 6, padding: "14px 16px", borderLeft: `3px solid ${c}` }}>
               <div className="mono" style={{ color: "var(--tm)", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6 }}>{l}</div>
               <div className="mono" style={{ color: c, fontSize: 20, fontWeight: 700 }}>{v}</div>

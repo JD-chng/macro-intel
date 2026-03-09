@@ -24,7 +24,7 @@ export function ArticleFeedPanel({ liveArticles }) {
               {f === "all" ? "All" : f.split(" ").slice(0,2).join(" ")}
             </button>
           ))}
-          {liveArticles.length > 0 && <span style={{ fontSize: 11, color: "var(--green)", fontFamily: "monospace", paddingTop: 4 }}>● {liveArticles.length} live from Reuters</span>}
+          {(liveArticles?.length > 0) && <span style={{ fontSize: 11, color: "var(--green)", fontFamily: "monospace", paddingTop: 4 }}>● {liveArticles.length} live from Reuters</span>}
         </div>
       </div>
       <div className="card">
