@@ -38,6 +38,7 @@ export const heatEmoji = (h) => h > 80 ? "🔴" : h > 60 ? "🟡" : h > 35 ? "�
 export const impColor = (d) => d === "positive" ? "var(--green)" : d === "negative" ? "var(--red)" : "var(--yellow)";
 
 export const Sparkline = ({ data, color }) => {
+  if (!data?.length || data.length < 2) return <svg width={72} height={28} />;
   const max = Math.max(...data), min = Math.min(...data), W = 72, H = 28;
   const pts = data.map((v, i) => `${(i / (data.length - 1)) * W},${H - ((v - min) / (max - min + 0.1)) * H}`).join(" ");
   return (
@@ -95,10 +96,11 @@ export const ThemeDetailPopup = ({ theme, onClose, apiKey, onOpenArticles }) => 
     ).then(t => { setAiSummary(t); setAiLoading(false); }).catch(() => setAiLoading(false));
   }, [theme.id, apiKey]);
 
-  const trend90 = theme.trend90 || theme.trend;
+  const trend90 = theme.trend90 || theme.trend || [];
   const W = 380, H = 80;
-  const max = Math.max(...trend90), min = Math.min(...trend90);
-  const pts = trend90.map((v, i) => `${(i / (trend90.length - 1)) * W},${H - ((v - min) / (max - min + 0.1)) * H}`).join(" ");
+  const hasTrend = trend90.length >= 2;
+  const max = hasTrend ? Math.max(...trend90) : 100, min = hasTrend ? Math.min(...trend90) : 0;
+  const pts = hasTrend ? trend90.map((v, i) => `${(i / (trend90.length - 1)) * W},${H - ((v - min) / (max - min + 0.1)) * H}`).join(" ") : "";
 
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 600, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(6,7,9,0.8)" }} onClick={onClose}>

@@ -28,7 +28,7 @@ async function fetchAlphaVantage(ticker, avKey) {
   } catch { return null; }
 }
 
-export default function OverviewPanel({ apiKey, avKey, liveArticles, articles = [] }) {
+export default function OverviewPanel({ apiKey, avKey, liveArticles = [], articles = [] }) {
   const allArticles = liveArticles || articles.filter(a => a.is_live) || [];
   const [searchQ, setSearchQ] = useState("");
   const [searchResults, setSearchResults] = useState([]);

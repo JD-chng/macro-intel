@@ -124,20 +124,11 @@ export async function saveMemory(entry) {
 }
 
 // ── REAL-TIME SUBSCRIPTION ────────────────────────────────────
-export function subscribeToArticles(callback) {
-  return supabase
-    .channel("articles-realtime")
-    .on("postgres_changes", { event: "INSERT", schema: "public", table: "articles" }, payload => {
-      callback(payload.new);
-    })
-    .subscribe();
+// No-ops: WebSocket realtime is disabled on static hosting (GitHub Pages)
+export function subscribeToArticles(_callback) {
+  return { unsubscribe: () => {} };
 }
 
-export function subscribeToThemes(callback) {
-  return supabase
-    .channel("themes-realtime")
-    .on("postgres_changes", { event: "*", schema: "public", table: "themes" }, payload => {
-      callback(payload);
-    })
-    .subscribe();
+export function subscribeToThemes(_callback) {
+  return { unsubscribe: () => {} };
 }

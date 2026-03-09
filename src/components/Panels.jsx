@@ -4,7 +4,7 @@ import { SectionTitle, Chip, Spinner, heatColor, heatEmoji, callClaude, ArticleS
 import { useApp } from "../context/AppContext.jsx";
 
 // ─── ARTICLE FEED ─────────────────────────────────────────────────────────────
-export function ArticleFeedPanel({ liveArticles }) {
+export function ArticleFeedPanel({ liveArticles = [] }) {
   const { articleModal } = useApp();
   const [filter, setFilter] = useState("all");
 
