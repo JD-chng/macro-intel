@@ -19,7 +19,8 @@ async function fetchAlphaVantage(ticker, avKey) {
   } catch { return null; }
 }
 
-export default function OverviewPanel({ avKey, themes = [], articles = [], socialMetrics = null }) {
+export default function OverviewPanel({ themes = [], articles = [], socialMetrics = null }) {
+  const avKey = import.meta.env.VITE_AV_KEY || "";
   const [popupTheme, setPopupTheme] = useState(null);
   const [sentimentIdx, setSentimentIdx] = useState(0);
   const [sentimentLive, setSentimentLive] = useState({});
@@ -170,15 +171,15 @@ export default function OverviewPanel({ avKey, themes = [], articles = [], socia
         {topThemes.map(t => (
           <div key={t.id || t.name} onClick={() => setPopupTheme(t)}
             style={{ background: "var(--bg1)", borderRadius: 8, padding: "12px 14px", marginBottom: 10, border: "1px solid var(--border)", cursor: "pointer", transition: "all .15s" }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = (t.color || "#f0a500") + "66"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = heatColor(t.heat || 0) + "66"; e.currentTarget.style.transform = "translateY(-1px)"; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.transform = "translateY(0)"; }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
               <span style={{ fontSize: 18 }}>{heatEmoji(t.heat || 0)}</span>
               <span style={{ fontWeight: 700, fontSize: 13, flex: 1, color: "var(--tp)" }}>{t.name}</span>
-              <span className="mono" style={{ color: t.color || heatColor(t.heat || 0), fontWeight: 700, fontSize: 16 }}>{t.heat}</span>
+              <span className="mono" style={{ color: heatColor(t.heat || 0), fontWeight: 700, fontSize: 16 }}>{t.heat}</span>
             </div>
             <div style={{ height: 4, background: "var(--bg3)", borderRadius: 2, marginBottom: 8 }}>
-              <div style={{ width: `${t.heat || 0}%`, height: "100%", background: `linear-gradient(90deg,${t.color || "#f0a500"}88,${t.color || "#f0a500"})`, borderRadius: 2 }} />
+              <div style={{ width: `${t.heat || 0}%`, height: "100%", background: `linear-gradient(90deg,${heatColor(t.heat || 0)}88,${heatColor(t.heat || 0)})`, borderRadius: 2 }} />
             </div>
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
               {(t.tags || []).slice(0, 3).map(tg => <Chip key={tg}>{tg}</Chip>)}
@@ -231,7 +232,7 @@ export default function OverviewPanel({ avKey, themes = [], articles = [], socia
             <div style={{ display: "flex", gap: 6, marginBottom: 16, flexWrap: "wrap" }}>
               {topThemes.map((t, i) => (
                 <button key={t.name} onClick={() => loadSentiment(i)}
-                  style={{ background: sentimentIdx === i ? (t.color || "var(--amber)") : "var(--bg3)", color: sentimentIdx === i ? "#000" : "var(--ts)", border: `1px solid ${sentimentIdx === i ? "transparent" : "var(--border)"}`, borderRadius: 5, padding: "5px 12px", cursor: "pointer", fontSize: 11, fontFamily: "monospace", fontWeight: sentimentIdx === i ? 700 : 400 }}>
+                  style={{ background: sentimentIdx === i ? heatColor(t.heat || 0) : "var(--bg3)", color: sentimentIdx === i ? "#000" : "var(--ts)", border: `1px solid ${sentimentIdx === i ? "transparent" : "var(--border)"}`, borderRadius: 5, padding: "5px 12px", cursor: "pointer", fontSize: 11, fontFamily: "monospace", fontWeight: sentimentIdx === i ? 700 : 400 }}>
                   {t.name.split(" ").slice(0, 2).join(" ")}
                 </button>
               ))}

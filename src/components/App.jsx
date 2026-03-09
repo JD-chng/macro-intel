@@ -105,7 +105,6 @@ function AppInner() {
 
   const suspiciousSilence = themes.find(t => t.status?.includes("Suspicious Silence"));
   const props = {
-    avKey: import.meta.env.VITE_AV_KEY || "",
     ytKey: import.meta.env.VITE_YT_KEY || "",
     themes: themes || [],
     articles: articles || [],

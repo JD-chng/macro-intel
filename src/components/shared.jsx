@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useApp } from "../context/AppContext.jsx";
 
 
@@ -98,22 +99,25 @@ export const ThemeDetailPopup = ({ theme, onClose, onOpenArticles, articles = []
     ).then(t => { setAiSummary(t); setAiLoading(false); }).catch(() => setAiLoading(false));
   }, [theme.id, resolvedKey]);
 
-  const trend90 = theme.trend90 || theme.trend;
+  const rawTrend = theme.heat_history?.map(h => h.score) || theme.trend90 || theme.trend || [];
+  const trend90 = rawTrend.length >= 2 ? rawTrend : [theme.heat || 50, theme.heat || 50];
   const W = 380, H = 80;
-  const max = Math.max(...trend90), min = Math.min(...trend90);
-  const pts = trend90.map((v, i) => `${(i / (trend90.length - 1)) * W},${H - ((v - min) / (max - min + 0.1)) * H}`).join(" ");
+  const max = Math.max(...trend90) || 100, min = Math.min(...trend90) || 0;
+  const pts = trend90.length < 2
+    ? `0,${H / 2} ${W},${H / 2}`
+    : trend90.map((v, i) => `${(i / (trend90.length - 1)) * W},${H - ((v - min) / (max - min + 0.1)) * H}`).join(" ");
 
-  return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 600, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(6,7,9,0.8)" }} onClick={onClose}>
+  return createPortal(
+    <div style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(6,7,9,0.8)" }} onClick={onClose}>
       <div className="fade-up" onClick={e => e.stopPropagation()}
-        style={{ background: "var(--card-bg)", border: `1px solid ${theme.color}55`, borderRadius: 12, padding: "24px 28px", maxWidth: 560, width: "94%", maxHeight: "85vh", overflow: "auto", position: "relative" }}>
+        style={{ background: "var(--card-bg)", border: `1px solid ${(theme.color || '#f0a500')}55`, borderRadius: 12, padding: "24px 28px", maxWidth: 560, width: "94%", maxHeight: "85vh", overflow: "auto", position: "relative" }}>
         <button onClick={onClose} style={{ position: "absolute", top: 14, right: 18, background: "none", border: "none", color: "var(--tm)", cursor: "pointer", fontSize: 22, lineHeight: 1 }}>×</button>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
           <span style={{ fontSize: 28 }}>{heatEmoji(theme.heat)}</span>
           <div>
             <div style={{ fontWeight: 800, fontSize: 18, color: "var(--tp)" }}>{theme.name}</div>
             <div style={{ display: "flex", gap: 8, marginTop: 4, flexWrap: "wrap" }}>
-              <span style={{ background: theme.color + "22", border: `1px solid ${theme.color}55`, color: theme.color, padding: "2px 8px", borderRadius: 3, fontSize: 11, fontFamily: "monospace" }}>{theme.status}</span>
+              <span style={{ background: (theme.color || '#f0a500') + "22", border: `1px solid ${(theme.color || '#f0a500')}55`, color: theme.color || '#f0a500', padding: "2px 8px", borderRadius: 3, fontSize: 11, fontFamily: "monospace" }}>{theme.status}</span>
               <span className="mono" style={{ color: "var(--ts)", fontSize: 11 }}>First detected {theme.first_detected}</span>
             </div>
           </div>
@@ -121,7 +125,7 @@ export const ThemeDetailPopup = ({ theme, onClose, onOpenArticles, articles = []
 
         {/* Stats */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, marginBottom: 16 }}>
-          {[["Heat Score", theme.heat + "/100", theme.color], ["Coverage", theme.change, theme.heat > 50 ? "var(--red)" : "var(--cyan)"], ["Articles", theme.articles, "var(--amber)"]].map(([l, v, c]) => (
+          {[["Heat Score", (theme.heat || 0) + "/100", theme.color || "var(--amber)"], ["Coverage", theme.change_pct || theme.change || "—", (theme.heat || 0) > 50 ? "var(--red)" : "var(--cyan)"], ["Articles", theme.article_count || theme.articles || 0, "var(--amber)"]].map(([l, v, c]) => (
             <div key={l} style={{ background: "var(--bg1)", borderRadius: 6, padding: "10px 12px", textAlign: "center" }}>
               <div className="mono" style={{ fontSize: 10, color: "var(--tm)", marginBottom: 4 }}>{l}</div>
               <div className="mono" style={{ color: c, fontSize: 18, fontWeight: 700 }}>{v}</div>

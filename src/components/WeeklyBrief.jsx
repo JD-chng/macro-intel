@@ -77,7 +77,7 @@ export default function WeeklyBriefPanel({ themes = [], articles = [] }) {
         {topThemes.length === 0 && <div style={{ color: "var(--ts)", fontSize: 12 }}>Loading live themes...</div>}
         {topThemes.map(t => (
           <div key={t.name} onClick={() => setThemePopup(t)}
-            style={{ background: "var(--bg1)", borderRadius: 6, padding: "10px 14px", marginBottom: 8, borderLeft: `3px solid ${t.color || "var(--amber)"}`, cursor: "pointer", transition: "background .15s" }}
+            style={{ background: "var(--bg1)", borderRadius: 6, padding: "10px 14px", marginBottom: 8, borderLeft: `3px solid ${heatColor(t.heat || 0)}`, cursor: "pointer", transition: "background .15s" }}
             onMouseEnter={e => e.currentTarget.style.background = "var(--bg3)"}
             onMouseLeave={e => e.currentTarget.style.background = "var(--bg1)"}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>

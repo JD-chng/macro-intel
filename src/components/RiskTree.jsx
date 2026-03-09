@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { THEMES, RISK_CHANNELS_ALL, CHANNEL_ICONS, CHANNEL_COLORS } from "../data/seed.js";
-import { SectionTitle, Spinner, callClaude } from "./shared.jsx";
+import { RISK_CHANNELS_ALL, CHANNEL_ICONS, CHANNEL_COLORS } from "../data/seed.js";
+import { SectionTitle, Spinner, callClaude, heatColor } from "./shared.jsx";
 
 const TreeNode = ({ node, depth = 0 }) => {
   const [open, setOpen] = useState(depth < 2);
@@ -22,38 +22,42 @@ const TreeNode = ({ node, depth = 0 }) => {
 };
 
 function parseAITree(text, channels) {
-  // Parse AI output into structured channel nodes
   const result = {};
   channels.forEach(ch => {
-    const lines = [];
-    const regex = new RegExp(`${ch}[:\\s]+([^\\n]+(?:\\n(?!\\w)[^\\n]+)*)`, 'i');
-    const match = text.match(regex);
+    // Try to find the channel section — match "CHANNELNAME:" or "Channel Name:" 
+    const escaped = ch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const sectionRegex = new RegExp(`(?:^|\n)${escaped}[:\s]*\n((?:[-•*]\s*.+\n?){1,5})`, 'im');
+    const match = text.match(sectionRegex);
     if (match) {
-      const raw = match[1].trim().split(/\n[-•]\s*|\n\d+\.\s*/).filter(Boolean);
-      if (raw.length) { result[ch] = raw.slice(0, 3); return; }
+      const bullets = match[1].split('\n')
+        .map(l => l.replace(/^[-•*\d.]+\s*/, '').trim())
+        .filter(l => l.length > 8);
+      if (bullets.length) { result[ch] = bullets.slice(0, 3); return; }
     }
-    // fallback: grab lines after channel name
+    // Fallback: find channel name and grab next non-empty lines
     const idx = text.toLowerCase().indexOf(ch.toLowerCase());
     if (idx !== -1) {
-      const after = text.slice(idx).split('\n').slice(1, 4).map(l => l.replace(/^[-•\d.]\s*/, '').trim()).filter(l => l.length > 10);
-      result[ch] = after.length ? after : [`${ch} exposure elevated under this scenario`];
-    } else {
-      result[ch] = [`${ch} exposure elevated under this scenario`];
+      const after = text.slice(idx + ch.length).split('\n')
+        .slice(0, 6)
+        .map(l => l.replace(/^[-•*:\d.]+\s*/, '').trim())
+        .filter(l => l.length > 10);
+      if (after.length) { result[ch] = after.slice(0, 3); return; }
     }
+    result[ch] = [`Analyzing ${ch} impact for: ${channels[0] || "this event"}`];
   });
   return result;
 }
 
-export default function RiskTreePanel(props) {
+export default function RiskTreePanel({ themes = [] }) {
   const [triggerMode, setTriggerMode] = useState("theme"); // "theme" | "custom"
-  const [selectedTheme, setSelectedTheme] = useState(THEMES[0]);
+  const [selectedTheme, setSelectedTheme] = useState(null);
   const [customEvent, setCustomEvent] = useState("");
   const [selectedChannels, setSelectedChannels] = useState(["Rates", "FX", "Equities", "Credit"]);
   const [treeData, setTreeData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [bullBear, setBullBear] = useState(null);
 
-  const triggerEvent = triggerMode === "theme" ? selectedTheme?.name : customEvent;
+  const triggerEvent = triggerMode === "theme" ? (selectedTheme?.name || "") : customEvent;
 
   const toggleChannel = (ch) => {
     setSelectedChannels(prev => prev.includes(ch) ? prev.filter(c => c !== ch) : [...prev, ch]);
@@ -64,10 +68,11 @@ export default function RiskTreePanel(props) {
     setLoading(true); setTreeData(null); setBullBear(null);
     try {
       const channelList = selectedChannels.join(", ");
+      const themeCtx = selectedTheme ? `Heat: ${selectedTheme.heat}/100, Status: ${selectedTheme.status || "Active"}, Tags: ${(selectedTheme.tags||[]).join(", ")}, Description: ${selectedTheme.description || ""}` : "";
       const text = await callClaude(
-        "You are a macro risk analyst. Generate a structured causal risk tree with specific, quantitative implications. Format each channel clearly labeled.",
-        `Trigger event: "${triggerEvent}"\n\nAnalyze impact across these channels: ${channelList}\n\nFor each channel provide 2-3 specific causal implications (e.g. "Higher-for-longer rates → duration assets (TLT) sell off → 10Y yield +40-60bps"). Be specific and quantitative.\n\nAlso provide:\nBULL CASE: (one sentence — what makes this scenario less severe)\nBEAR CASE: (one sentence — what makes this scenario worse)\n\nFormat:\n[CHANNEL NAME]\n- implication 1\n- implication 2\n\nBULL CASE: ...\nBEAR CASE: ...`,
-        1200
+        "You are a senior macro risk analyst at a $50bn asset manager. You MUST output structured analysis in EXACTLY the format specified. Do not add preamble or explanation.",
+        `Trigger event: "${triggerEvent}"${themeCtx ? `\nContext: ${themeCtx}` : ""}\n\nAnalyze risk implications across: ${channelList}\n\nYou MUST use EXACTLY this format for each channel (replace with specific quantitative analysis):\n\n${selectedChannels.map(ch => `${ch.toUpperCase()}:\n- [specific causal chain with numbers e.g. "10Y yields rise 40-60bps → duration assets sell off → TLT -8-12%"]\n- [second implication]\n- [third implication]`).join("\n\n")}\n\nBULL CASE: [one sentence on what limits severity]\nBEAR CASE: [one sentence on worst case amplifiers]`,
+        1500
       );
 
       // Extract bull/bear
@@ -78,17 +83,13 @@ export default function RiskTreePanel(props) {
       const parsed = parseAITree(text, selectedChannels);
       setTreeData(parsed);
     } catch (e) {
-      // fallback to seed data if available
-      if (triggerMode === "theme" && selectedTheme?.riskTree) {
-        setTreeData(selectedTheme.riskTree.implications);
-        setBullBear({ bull: "Scenario resolves faster than expected", bear: "Full escalation with global contagion" });
-      }
+      console.error("Risk tree error:", e);
     }
     setLoading(false);
   };
 
   // Show seed data by default for selected theme
-  const displayData = treeData || (triggerMode === "theme" && selectedTheme?.riskTree?.implications) || null;
+  const displayData = treeData || null;
   const displayBullBear = bullBear || (triggerMode === "theme" ? { bull: "Trade deal progress or policy reversal halts escalation", bear: "Full escalation + simultaneous secondary shocks" } : null);
 
   return (
@@ -107,9 +108,10 @@ export default function RiskTreePanel(props) {
         </div>
 
         {triggerMode === "theme" ? (
-          <select value={selectedTheme?.id} onChange={e => setSelectedTheme(THEMES.find(t => t.id === parseInt(e.target.value)))}
+          <select value={selectedTheme?.name || ""} onChange={e => setSelectedTheme(themes.find(t => t.name === e.target.value) || null)}
             style={{ width: "100%", background: "var(--bg1)", border: "1px solid var(--borderlit)", borderRadius: 6, padding: "10px 14px", color: "var(--tp)", fontFamily: "'Space Mono',monospace", fontSize: 13, marginBottom: 14 }}>
-            {THEMES.map(t => <option key={t.id} value={t.id}>{t.name} — Heat {t.heat}</option>)}
+            <option value="">— Select a live theme —</option>
+            {[...themes].sort((a,b)=>(b.heat||0)-(a.heat||0)).map(t => <option key={t.name} value={t.name}>{t.name} — Heat {t.heat}</option>)}
           </select>
         ) : (
           <input value={customEvent} onChange={e => setCustomEvent(e.target.value)}
