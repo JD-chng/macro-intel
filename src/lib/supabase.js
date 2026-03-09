@@ -1,8 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 
 // These come from your Supabase project → Settings → API
-const SUPABASE_URL = "https://hnrxzkzyrjoerozqixrj.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_BWeb8jJxMRydQ8F0WYz5MA_uBSDj1F7";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -123,12 +123,45 @@ export async function saveMemory(entry) {
   if (error) console.error("saveMemory error:", error.message);
 }
 
-// ── REAL-TIME SUBSCRIPTION ────────────────────────────────────
-// No-ops: WebSocket realtime is disabled on static hosting (GitHub Pages)
-export function subscribeToArticles(_callback) {
+// ── EMERGING THEMES ───────────────────────────────────────────
+export async function fetchEmergingThemes() {
+  const { data } = await supabase
+    .from("emerging_themes")
+    .select("*")
+    .order("generated_at", { ascending: false })
+    .limit(20);
+  if (!data) return [];
+  // Return only the most recent batch (generated within same minute)
+  if (data.length === 0) return [];
+  const latest = data[0].generated_at;
+  const cutoff = new Date(new Date(latest).getTime() + 2 * 60 * 1000).toISOString();
+  return data.filter(r => r.generated_at <= cutoff);
+}
+
+export async function saveEmergingThemes(themes = [], articleCount = 0) {
+  if (!themes.length) return;
+  const now = new Date().toISOString();
+  const rows = themes.map(t => ({
+    theme: t.theme,
+    prob: t.prob,
+    conf: t.conf,
+    signal: t.signal,
+    why_breakout: t.whyBreakout,
+    drivers: t.drivers || [],
+    conf_breakdown: t.confBreakdown || {},
+    sources: t.sources || [],
+    generated_at: now,
+    article_count: articleCount,
+  }));
+  const { error } = await supabase.from("emerging_themes").insert(rows);
+  if (error) console.error("saveEmergingThemes error:", error.message);
+}
+
+// ── REAL-TIME SUBSCRIPTION (disabled - use polling instead) ───
+export function subscribeToArticles(callback) {
   return { unsubscribe: () => {} };
 }
 
-export function subscribeToThemes(_callback) {
+export function subscribeToThemes(callback) {
   return { unsubscribe: () => {} };
 }

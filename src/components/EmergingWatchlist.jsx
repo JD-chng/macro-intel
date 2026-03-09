@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SectionTitle, Chip, Spinner, callClaude } from "./shared.jsx";
+import { fetchEmergingThemes, saveEmergingThemes } from "../lib/supabase.js";
 
 const CONF_COLORS = { "Mention Velocity": "var(--red)", "Source Migration": "var(--amber)", "Graph Centrality": "var(--cyan)", "Policy Proximity": "var(--purple)" };
 
@@ -8,9 +9,28 @@ export default function WatchlistPanel({ themes = [], articles = [] }) {
   const [emerging, setEmerging] = useState([]);
   const [loading, setLoading] = useState(false);
   const [generated, setGenerated] = useState(false);
+  const [cachedAt, setCachedAt] = useState(null);
+  const [loadingCache, setLoadingCache] = useState(true);
+
+  // Load cached results from Supabase on mount
+  useEffect(() => {
+    fetchEmergingThemes().then(cached => {
+      if (cached.length > 0) {
+        const mapped = cached.map(r => ({
+          theme: r.theme, prob: r.prob, conf: r.conf,
+          signal: r.signal, whyBreakout: r.why_breakout,
+          drivers: r.drivers || [], confBreakdown: r.conf_breakdown || {},
+          sources: r.sources || [],
+        }));
+        setEmerging(mapped);
+        setGenerated(true);
+        setCachedAt(new Date(cached[0].generated_at));
+      }
+      setLoadingCache(false);
+    }).catch(() => setLoadingCache(false));
+  }, []);
 
   const generateEmerging = async () => {
-    
     setLoading(true);
     try {
       const recentTitles = articles.slice(0, 30).map(a => `- ${a.title} (${a.source}, sentiment: ${a.sentiment || "neutral"})`).join("\n");
@@ -41,6 +61,8 @@ Respond with ONLY a JSON array (no markdown, no explanation):
       const parsed = JSON.parse(cleaned);
       setEmerging(parsed);
       setGenerated(true);
+      setCachedAt(new Date());
+      await saveEmergingThemes(parsed, articles.length);
     } catch (e) {
       console.error("Emerging generation error:", e.message);
       setGenerated(true);
@@ -48,10 +70,12 @@ Respond with ONLY a JSON array (no markdown, no explanation):
     setLoading(false);
   };
 
-  // Auto-generate on first load if we have data
-  if (!generated && !loading && articles.length > 5) {
-    generateEmerging();
-  }
+  // Auto-generate only if no cache loaded and we have articles
+  useEffect(() => {
+    if (!loadingCache && !generated && !loading && articles.length > 5) {
+      generateEmerging();
+    }
+  }, [loadingCache, articles.length]);
 
   return (
     <div style={{ position: "relative" }}>
@@ -138,6 +162,11 @@ Respond with ONLY a JSON array (no markdown, no explanation):
             {loading ? "Analyzing..." : "↻ Refresh"}
           </button>
         </div>
+        {cachedAt && !loading && (
+          <div style={{ marginBottom: 12, fontSize: 11, color: "var(--tm)", fontFamily: "monospace" }}>
+            ✓ Cached · last generated {cachedAt.toLocaleString()}
+          </div>
+        )}
 
         {loading && (
           <div style={{ textAlign: "center", padding: "40px", color: "var(--ts)" }}>
