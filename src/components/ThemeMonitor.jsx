@@ -6,11 +6,12 @@ export default function ThemesPanel({ themes = [], articles = [] }) {
 
   const enrichedThemes = themes.map(t => ({
     ...t,
-    trend: t.heat_history?.map(h => h.score) || [t.heat],
+    trend: t.trend || t.heat_history?.map(h => h.score) || [t.heat],
     articles: t.article_count || articles.filter(a => a.themes?.includes(t.name)).length || 0,
     tags: t.tags || [],
     countries: t.countries || [],
-    color: t.color || heatColor(t.heat || 50),
+    accentColor: t.color || "#f0a500",        // stored identity color (popup accent)
+    dynColor: heatColor(t.heat || 0),          // live heat-driven color for bar/score
     change: t.change_pct || "0%",
   }));
 
@@ -32,24 +33,24 @@ export default function ThemesPanel({ themes = [], articles = [] }) {
         {enrichedThemes.map(t => (
           <div key={t.id || t.name} onClick={() => setSelected(t)}
             style={{ background: "var(--bg1)", borderRadius: 8, padding: "14px 16px", marginBottom: 10, border: "1px solid var(--border)", cursor: "pointer", transition: "all .2s" }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = (t.color || "#f0a500") + "66"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = t.dynColor + "66"; e.currentTarget.style.transform = "translateY(-1px)"; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.transform = "translateY(0)"; }}>
             <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
               <div style={{ fontSize: 24, paddingTop: 2, flexShrink: 0 }}>{heatEmoji(t.heat || 0)}</div>
               <div style={{ flex: 1 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
                   <span style={{ fontWeight: 700, fontSize: 15, color: "var(--tp)" }}>{t.name}</span>
-                  <span style={{ background: (t.color || "#f0a500") + "22", border: `1px solid ${t.color || "#f0a500"}55`, color: t.color || "#f0a500", padding: "2px 8px", borderRadius: 3, fontSize: 11, fontFamily: "monospace" }}>{t.status || "Active"}</span>
+                  <span style={{ background: t.dynColor + "22", border: `1px solid ${t.dynColor}55`, color: t.dynColor, padding: "2px 8px", borderRadius: 3, fontSize: 11, fontFamily: "monospace" }}>{t.status || "Active"}</span>
                   <span className="mono" style={{ color: (t.heat || 0) > 50 ? "var(--red)" : "var(--cyan)", fontSize: 11, marginLeft: "auto" }}>{t.change}</span>
                 </div>
                 <p style={{ color: "var(--ts)", fontSize: 12, lineHeight: 1.55, marginBottom: 10 }}>{t.description || "AI-discovered theme from live article analysis."}</p>
                 <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
                   <div style={{ flex: 1, height: 4, background: "var(--bg3)", borderRadius: 2 }}>
-                    <div style={{ width: `${t.heat || 0}%`, height: "100%", background: `linear-gradient(90deg,${t.color || "#f0a500"}88,${t.color || "#f0a500"})`, borderRadius: 2 }} />
+                    <div style={{ width: `${t.heat || 0}%`, height: "100%", background: `linear-gradient(90deg,${t.dynColor}88,${t.dynColor})`, borderRadius: 2 }} />
                   </div>
-                  <span className="mono" style={{ color: t.color || "#f0a500", fontWeight: 700, fontSize: 16 }}>{t.heat || 0}</span>
+                  <span className="mono" style={{ color: t.dynColor, fontWeight: 700, fontSize: 16 }}>{t.heat || 0}</span>
                   <span style={{ color: "var(--tm)", fontSize: 11 }}>{t.articles} articles</span>
-                  {t.trend?.length > 1 && <Sparkline data={t.trend} color={t.color || "#f0a500"} />}
+                  {t.trend?.length > 1 && <Sparkline data={t.trend} color={t.dynColor} />}
                 </div>
                 <div style={{ display: "flex", gap: 6, marginTop: 10, flexWrap: "wrap" }}>
                   {t.tags?.slice(0, 4).map(tg => <Chip key={tg}>{tg}</Chip>)}
