@@ -111,7 +111,16 @@ function AppInner() {
   if (showTour) return (<><style>{CSS_VARS}</style><GuidedTour onFinish={() => setShowTour(false)} /></>);
 
   const suspiciousSilence = themes.find(t => t.status?.includes("Suspicious Silence"));
-  const props = { apiKey: apiKeys.claude, avKey: apiKeys.alphaVantage, ytKey: apiKeys.youtube, themes, articles, marketPulse, socialMetrics, onRefresh: loadData };
+  const props = {
+    apiKey: apiKeys.claude || "",
+    avKey: apiKeys.alphaVantage || "",
+    ytKey: apiKeys.youtube || "",
+    themes: themes || [],
+    articles: articles || [],
+    marketPulse: marketPulse || [],
+    socialMetrics: socialMetrics || null,
+    onRefresh: loadData,
+  };
 
   const renderPanel = () => {
     switch (active) {
@@ -184,7 +193,7 @@ function AppInner() {
 
           <div style={{ flex: 1, overflow: "auto", padding: "18px 22px" }} key={active}>
             <div className="fade-up" style={{ maxWidth: 1200, margin: "0 auto" }}>
-              {dataLoading && !themes.length
+              {(dataLoading && !themes.length) || (!dataLoading && !themes.length)
                 ? <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: 400, gap: 16 }}>
                     <Spinner size={32} />
                     <div className="mono" style={{ color: "var(--ts)", fontSize: 13 }}>Loading live data from Supabase...</div>
