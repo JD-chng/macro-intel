@@ -75,15 +75,14 @@ export default function OverviewPanel({ avKey, themes = [], articles = [], socia
     "Fed vs ECB divergence?",
   ];
 
-  // Article velocity chart — group by hour for last 24h
-  const now = Date.now();
+  // Article velocity chart — real counts per day of week, no random fallback
   const velocityData = Array.from({ length: 7 }, (_, i) => {
     const dayLabel = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"][i];
     const count = articles.filter(a => {
       const d = new Date(a.published_at || 0);
-      return d.getDay() === i;
+      return d.getDay() === (i + 1) % 7; // Mon=1..Sun=0 → align correctly
     }).length;
-    return { d: dayLabel, v: count || Math.floor(Math.random() * 40 + 20) };
+    return { d: dayLabel, v: count };
   });
 
   const fearGreed = socialMetrics?.fear_greed ?? 50;
