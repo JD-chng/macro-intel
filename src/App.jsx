@@ -47,37 +47,6 @@ function GuidedTour({ onFinish }) {
   );
 }
 
-function ApiKeyModal({ onSet }) {
-  const [claude, setClaude] = useState("");
-  const [av, setAv] = useState("");
-  const [yt, setYt] = useState("");
-  return (
-    <div style={{ position: "fixed", inset: 0, background: "var(--bg0)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999 }}>
-      <div className="fade-up" style={{ background: "var(--card-bg)", border: "1px solid var(--borderlit)", borderRadius: 12, padding: "36px 40px", maxWidth: 500, width: "94%" }}>
-        <div className="mono" style={{ color: "var(--amber)", fontSize: 11, letterSpacing: "0.2em", marginBottom: 8 }}>MACRO INTELLIGENCE PLATFORM</div>
-        <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 8, color: "var(--tp)" }}>Configure API Keys</div>
-        <p style={{ color: "var(--ts)", fontSize: 13, lineHeight: 1.6, marginBottom: 24 }}>Keys stored in browser memory only.</p>
-        {[
-          ["Anthropic (Claude) *", claude, setClaude, "sk-ant-...", "Required — AI analysis, risk trees, weekly brief"],
-          ["Alpha Vantage", av, setAv, "Your AV key...", "Optional — live market sentiment (free at alphavantage.co)"],
-          ["YouTube Data v3", yt, setYt, "AIza...", "Optional — financial video search (free at console.cloud.google.com)"],
-        ].map(([label, val, setter, ph, hint]) => (
-          <div key={label} style={{ marginBottom: 16 }}>
-            <div className="mono" style={{ fontSize: 10, color: "var(--ts)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.1em" }}>{label}</div>
-            <input value={val} onChange={e => setter(e.target.value)} placeholder={ph} type="password"
-              style={{ width: "100%", background: "var(--bg1)", border: "1px solid var(--border)", borderRadius: 6, padding: "9px 12px", color: "var(--tp)", fontFamily: "monospace", fontSize: 13 }} />
-            <div style={{ fontSize: 11, color: "var(--tm)", marginTop: 3 }}>{hint}</div>
-          </div>
-        ))}
-        <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
-          <button onClick={() => onSet({ claude, alphaVantage: av, youtube: yt })} style={{ flex: 1, background: "var(--amber)", color: "#000", border: "none", borderRadius: 6, padding: "12px", cursor: "pointer", fontFamily: "monospace", fontWeight: 700, fontSize: 13 }}>Enter Platform →</button>
-          <button onClick={() => onSet({ claude: "DEMO", alphaVantage: "", youtube: "" })} style={{ background: "var(--bg3)", border: "1px solid var(--border)", borderRadius: 6, padding: "12px 16px", color: "var(--ts)", cursor: "pointer", fontFamily: "monospace", fontSize: 12 }}>Demo Mode</button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 const NAV = [
   { id: "overview", label: "Overview", icon: "⬡" },
   { id: "themes", label: "Themes", icon: "◉" },
@@ -94,7 +63,6 @@ const TITLE_MAP = { overview:"System Overview", themes:"Theme Heat Monitor", ris
 
 function AppInner() {
   const { colorTheme, toggleTheme, apiKeys, setApiKeys, articleModal, closeArticleModal } = useApp();
-  const [showModal, setShowModal] = useState(true);
   const [showTour, setShowTour] = useState(false);
   const [active, setActive] = useState("overview");
   const [time, setTime] = useState(new Date());
@@ -106,6 +74,15 @@ function AppInner() {
   const [dataLoading, setDataLoading] = useState(true);
   const [lastRefreshed, setLastRefreshed] = useState(null);
   const [nextRefresh, setNextRefresh] = useState(30 * 60);
+
+  // Auto-load API keys from environment variables — no modal needed
+  useEffect(() => {
+    setApiKeys({
+      claude: import.meta.env.VITE_ANTHROPIC_KEY || "",
+      alphaVantage: import.meta.env.VITE_AV_KEY || "",
+      youtube: import.meta.env.VITE_YT_KEY || "",
+    });
+  }, []);
 
   useEffect(() => { const t = setInterval(() => { setTime(new Date()); setNextRefresh(s => s <= 1 ? 30*60 : s-1); }, 1000); return () => clearInterval(t); }, []);
 
@@ -124,15 +101,13 @@ function AppInner() {
   }, []);
 
   useEffect(() => {
-    if (!apiKeys.claude) return;
     loadData();
     const articleSub = subscribeToArticles(a => setArticles(prev => [a, ...prev].slice(0, 100)));
     const themeSub = subscribeToThemes(() => fetchThemes().then(t => { if (t.length) setThemes(t); }));
     const interval = setInterval(loadData, 30 * 60 * 1000);
     return () => { articleSub.unsubscribe(); themeSub.unsubscribe(); clearInterval(interval); };
-  }, [apiKeys.claude, loadData]);
+  }, [loadData]);
 
-  if (showModal) return (<><style>{CSS_VARS}</style><ApiKeyModal onSet={keys => { setApiKeys(keys); setShowModal(false); setShowTour(true); }} /></>);
   if (showTour) return (<><style>{CSS_VARS}</style><GuidedTour onFinish={() => setShowTour(false)} /></>);
 
   const suspiciousSilence = themes.find(t => t.status?.includes("Suspicious Silence"));
