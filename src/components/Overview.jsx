@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { SectionTitle, Chip, Spinner, heatColor, heatEmoji, ThemeDetailPopup, callClaude } from "./shared.jsx";
+import { SectionTitle, Chip, Spinner, heatColor, heatColorHex, heatEmoji, ThemeDetailPopup, callClaude } from "./shared.jsx";
 
 async function fetchAlphaVantage(ticker, avKey) {
   if (!avKey) return null;
@@ -179,7 +179,7 @@ export default function OverviewPanel({ themes = [], articles = [], socialMetric
               <span className="mono" style={{ color: heatColor(t.heat || 0), fontWeight: 700, fontSize: 16 }}>{t.heat}</span>
             </div>
             <div style={{ height: 4, background: "var(--bg3)", borderRadius: 2, marginBottom: 8 }}>
-              <div style={{ width: `${t.heat || 0}%`, height: "100%", background: `linear-gradient(90deg,${heatColor(t.heat || 0)}88,${heatColor(t.heat || 0)})`, borderRadius: 2 }} />
+              <div style={{ width: `${t.heat || 0}%`, height: "100%", background: `linear-gradient(90deg,${heatColorHex(t.heat || 0)}88,${heatColorHex(t.heat || 0)})`, borderRadius: 2 }} />
             </div>
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
               {(t.tags || []).slice(0, 3).map(tg => <Chip key={tg}>{tg}</Chip>)}

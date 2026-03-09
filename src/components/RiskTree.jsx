@@ -21,7 +21,7 @@ const TreeNode = ({ node, depth = 0 }) => {
   );
 };
 
-function parseAITree(text, channels) {
+function parseAITree(text, channels, triggerName = "") {
   const result = {};
   channels.forEach(ch => {
     // Try to find the channel section — match "CHANNELNAME:" or "Channel Name:" 
@@ -43,7 +43,7 @@ function parseAITree(text, channels) {
         .filter(l => l.length > 10);
       if (after.length) { result[ch] = after.slice(0, 3); return; }
     }
-    result[ch] = [`Analyzing ${ch} impact for: ${channels[0] || "this event"}`];
+    result[ch] = [`Analyzing ${ch} implications for ${triggerName || "this scenario"}...`];
   });
   return result;
 }
@@ -56,6 +56,7 @@ export default function RiskTreePanel({ themes = [] }) {
   const [treeData, setTreeData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [bullBear, setBullBear] = useState(null);
+  const [elapsed, setElapsed] = useState(0);
 
   const triggerEvent = triggerMode === "theme" ? (selectedTheme?.name || "") : customEvent;
 
@@ -65,7 +66,9 @@ export default function RiskTreePanel({ themes = [] }) {
 
   const generateTree = async () => {
     if (!triggerEvent) return;
-    setLoading(true); setTreeData(null); setBullBear(null);
+    setLoading(true); setTreeData(null); setBullBear(null); setElapsed(0);
+    const startTime = Date.now();
+    const timer = setInterval(() => setElapsed(Math.floor((Date.now() - startTime) / 1000)), 500);
     try {
       const channelList = selectedChannels.join(", ");
       const themeCtx = selectedTheme ? `Heat: ${selectedTheme.heat}/100, Status: ${selectedTheme.status || "Active"}, Tags: ${(selectedTheme.tags||[]).join(", ")}, Description: ${selectedTheme.description || ""}` : "";
@@ -80,11 +83,12 @@ export default function RiskTreePanel({ themes = [] }) {
       const bearMatch = text.match(/BEAR CASE[:\s]+([^\n]+)/i);
       setBullBear({ bull: bullMatch?.[1]?.trim() || "Trade deal progress halts escalation", bear: bearMatch?.[1]?.trim() || "Full escalation + secondary shocks simultaneously" });
 
-      const parsed = parseAITree(text, selectedChannels);
+      const parsed = parseAITree(text, selectedChannels, triggerEvent);
       setTreeData(parsed);
     } catch (e) {
       console.error("Risk tree error:", e);
     }
+    clearInterval(timer);
     setLoading(false);
   };
 
@@ -130,6 +134,17 @@ export default function RiskTreePanel({ themes = [] }) {
           ))}
         </div>
 
+        {loading && (
+          <div style={{ marginBottom: 12 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+              <span style={{ color: "var(--ts)", fontSize: 11, fontFamily: "monospace" }}>Generating risk tree via Claude AI...</span>
+              <span style={{ color: "var(--amber)", fontSize: 11, fontFamily: "monospace" }}>{elapsed}s</span>
+            </div>
+            <div style={{ height: 3, background: "var(--bg3)", borderRadius: 2, overflow: "hidden" }}>
+              <div style={{ height: "100%", background: "var(--red)", borderRadius: 2, width: `${Math.min(elapsed * 5, 92)}%`, transition: "width 0.5s ease" }} />
+            </div>
+          </div>
+        )}
         <button onClick={generateTree} disabled={loading || !triggerEvent || selectedChannels.length === 0}
           style={{ background: loading ? "var(--bg3)" : "var(--red)", color: loading ? "var(--ts)" : "#fff", border: "none", borderRadius: 6, padding: "10px 20px", cursor: loading ? "not-allowed" : "pointer", fontFamily: "monospace", fontWeight: 700, fontSize: 12, display: "flex", alignItems: "center", gap: 8 }}>
           {loading ? <><Spinner /> Generating risk tree...</> : "⚡ Generate Risk Tree"}

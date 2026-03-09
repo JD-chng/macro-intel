@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SectionTitle, Chip, Sparkline, Spinner, heatColor, heatEmoji, ThemeDetailPopup } from "./shared.jsx";
+import { SectionTitle, Chip, Sparkline, Spinner, heatColor, heatColorHex, heatEmoji, ThemeDetailPopup } from "./shared.jsx";
 
 export default function ThemesPanel({ themes = [], articles = [] }) {
   const [selected, setSelected] = useState(null);
@@ -11,7 +11,8 @@ export default function ThemesPanel({ themes = [], articles = [] }) {
     tags: t.tags || [],
     countries: t.countries || [],
     accentColor: t.color || "#f0a500",        // stored identity color (popup accent)
-    dynColor: heatColor(t.heat || 0),          // live heat-driven color for bar/score
+    dynColor: heatColor(t.heat || 0),
+    dynColorHex: heatColorHex(t.heat || 0),
     change: t.change_pct || "0%",
   }));
 
@@ -46,7 +47,7 @@ export default function ThemesPanel({ themes = [], articles = [] }) {
                 <p style={{ color: "var(--ts)", fontSize: 12, lineHeight: 1.55, marginBottom: 10 }}>{t.description || "AI-discovered theme from live article analysis."}</p>
                 <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
                   <div style={{ flex: 1, height: 4, background: "var(--bg3)", borderRadius: 2 }}>
-                    <div style={{ width: `${t.heat || 0}%`, height: "100%", background: `linear-gradient(90deg,${t.dynColor}88,${t.dynColor})`, borderRadius: 2 }} />
+                    <div style={{ width: `${t.heat || 0}%`, height: "100%", background: `linear-gradient(90deg,${t.dynColorHex}88,${t.dynColorHex})`, borderRadius: 2 }} />
                   </div>
                   <span className="mono" style={{ color: t.dynColor, fontWeight: 700, fontSize: 16 }}>{t.heat || 0}</span>
                   <span style={{ color: "var(--tm)", fontSize: 11 }}>{t.articles} articles</span>

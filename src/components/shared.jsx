@@ -35,6 +35,7 @@ export const CSS_VARS = `
 `;
 
 export const heatColor = (h) => h > 80 ? "var(--red)" : h > 60 ? "var(--amber)" : h > 35 ? "var(--yellow)" : h > 15 ? "var(--cyan)" : "var(--tm)";
+export const heatColorHex = (h) => h > 80 ? "#ff4444" : h > 60 ? "#f0a500" : h > 35 ? "#ffeb3b" : h > 15 ? "#00d4ff" : "#4a5568";
 export const heatEmoji = (h) => h > 80 ? "🔴" : h > 60 ? "🟡" : h > 35 ? "🟡" : "🟢";
 export const impColor = (d) => d === "positive" ? "var(--green)" : d === "negative" ? "var(--red)" : "var(--yellow)";
 
@@ -87,17 +88,14 @@ export const ThemeDetailPopup = ({ theme, onClose, onOpenArticles, articles = []
   const [aiLoading, setAiLoading] = useState(false);
   const relatedArticles = articles.filter(a => a.themes?.includes(theme.name)).slice(0, 5);
 
-  // Read key from env if not passed as prop
-  const resolvedKey = import.meta.env.VITE_ANTHROPIC_KEY || "";
-
   useEffect(() => {
-    if (!resolvedKey) return;
+    if (!import.meta.env.VITE_ANTHROPIC_KEY) return;
     setAiLoading(true);
-    callClaude(resolvedKey,
+    callClaude(
       "You are a senior macro analyst. Provide a 3-sentence AI summary of latest developments for a macro theme. Be specific and forward-looking.",
       `Theme: ${theme.name}\nHeat: ${theme.heat}/100\nStatus: ${theme.status}\nDescription: ${theme.description}\nTags: ${(theme.tags||[]).join(", ")}\n\nSummarize latest developments and key forward-looking risk in 3 sentences.`
     ).then(t => { setAiSummary(t); setAiLoading(false); }).catch(() => setAiLoading(false));
-  }, [theme.id, resolvedKey]);
+  }, [theme.id]);
 
   const rawTrend = theme.heat_history?.map(h => h.score) || theme.trend90 || theme.trend || [];
   const trend90 = rawTrend.length >= 2 ? rawTrend : [theme.heat || 50, theme.heat || 50];
@@ -190,7 +188,7 @@ export const ThemeDetailPopup = ({ theme, onClose, onOpenArticles, articles = []
         )}
       </div>
     </div>
-  );
+  , document.body);
 };
 
 // ─── ARTICLE SOURCE LINK (hover popup + click to modal) ───────────────────────
@@ -254,7 +252,7 @@ export const ArticleFeedModal = ({ onClose }) => {
           <div className="mono" style={{ color: "var(--amber)", fontSize: 11, letterSpacing: "0.15em" }}>ARTICLE REFERENCE HUB</div>
           <button onClick={onClose} style={{ background: "none", border: "none", color: "var(--tm)", cursor: "pointer", fontSize: 22 }}>×</button>
         </div>
-        {ARTICLES.map(a => (
+        {articles.map(a => (
           <div key={a.id} style={{ padding: "12px 14px", borderRadius: 8, marginBottom: 10, background: a.id === articleModal ? "var(--amber-glow)" : "var(--bg1)", border: `1px solid ${a.id === articleModal ? "var(--borderlit)" : "var(--border)"}`, transition: "all .3s" }}>
             <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
               <div style={{ width: 6, height: 6, borderRadius: "50%", background: a.isLive ? "var(--green)" : heatColor(a.heat || 60), marginTop: 5, flexShrink: 0 }} className={a.isLive ? "pulse" : ""} />
