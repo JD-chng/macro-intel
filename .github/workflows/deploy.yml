@@ -20,6 +20,9 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_ANTHROPIC_KEY: ${{ secrets.VITE_ANTHROPIC_KEY }}
+          VITE_AV_KEY: ${{ secrets.VITE_AV_KEY }}
+          VITE_YT_KEY: ${{ secrets.VITE_YT_KEY }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
