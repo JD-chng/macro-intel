@@ -191,32 +191,24 @@ export const ThemeDetailPopup = ({ theme, onClose, onOpenArticles, articles = []
   , document.body);
 };
 
-// ─── ARTICLE SOURCE LINK (hover popup + click to modal) ───────────────────────
+// ─── ARTICLE SOURCE LINK ─────────────────────────────────────────────────────
 export const ArticleSourceLink = ({ article, compact }) => {
-  const { showArticleHover, hideArticleHover, openArticleModal } = useApp();
   const [hovering, setHovering] = useState(false);
-  const [pos, setPos] = useState({ x: 0, y: 0 });
-
-  const handleMouseEnter = (e) => {
-    setHovering(true);
-    const rect = e.currentTarget.getBoundingClientRect();
-    showArticleHover(article, rect.left, rect.bottom + 6);
-  };
-
   if (!article) return null;
-
+  const handleClick = () => {
+    if (article.url) window.open(article.url, "_blank", "noopener,noreferrer");
+  };
   return (
-    <div
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={() => { setHovering(false); hideArticleHover(); }}
-      onClick={() => openArticleModal(article.id)}
-      style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", borderRadius: 6, background: hovering ? "var(--bg3)" : "var(--bg1)", cursor: "pointer", marginBottom: 4, border: "1px solid var(--border)", transition: "background .15s" }}>
+    <div onClick={handleClick}
+      onMouseEnter={() => setHovering(true)}
+      onMouseLeave={() => setHovering(false)}
+      style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", borderRadius: 6, background: hovering ? "var(--bg3)" : "var(--bg1)", cursor: article.url ? "pointer" : "default", marginBottom: 4, border: "1px solid var(--border)", transition: "background .15s" }}>
       <div style={{ width: 6, height: 6, borderRadius: "50%", background: heatColor(article.heat || 60), flexShrink: 0 }} />
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: compact ? 11 : 12, color: "var(--tp)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{article.title}</div>
-        {!compact && <div style={{ fontSize: 10, color: "var(--ts)", marginTop: 2 }}>{article.source} · {article.time}</div>}
+        <div style={{ fontSize: compact ? 11 : 12, color: hovering ? "var(--amber)" : "var(--tp)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", transition: "color .15s" }}>{article.title}</div>
+        {!compact && <div style={{ fontSize: 10, color: "var(--ts)", marginTop: 2 }}>{article.source}{article.published_at ? ` · ${new Date(article.published_at).toLocaleDateString()}` : ""}</div>}
       </div>
-      <span style={{ color: "var(--amber)", fontSize: 10, fontFamily: "monospace", flexShrink: 0 }}>{article.source}</span>
+      <span style={{ color: "var(--amber)", fontSize: 10, fontFamily: "monospace", flexShrink: 0 }}>{article.source} ↗</span>
     </div>
   );
 };
