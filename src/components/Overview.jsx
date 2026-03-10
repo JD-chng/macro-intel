@@ -19,7 +19,7 @@ async function fetchAlphaVantage(ticker, avKey) {
   } catch { return null; }
 }
 
-export default function OverviewPanel({ themes = [], articles = [], socialMetrics = null }) {
+export default function OverviewPanel({ themes = [], articles = [], articleCount = 0, socialMetrics = null }) {
   const avKey = import.meta.env.VITE_AV_KEY || "";
   const [popupTheme, setPopupTheme] = useState(null);
   const [sentimentIdx, setSentimentIdx] = useState(0);
@@ -99,7 +99,7 @@ export default function OverviewPanel({ themes = [], articles = [], socialMetric
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14 }}>
           {[
             ["Active Themes", themes.length > 0 ? `${themes.length} live` : "Waiting...", "var(--amber)"],
-            ["Live Articles", articles.length > 0 ? `${articles.length} indexed` : "Loading...", "var(--cyan)"],
+            ["Live Articles", `${articleCount || articles.length} indexed`, "var(--cyan)"],
             ["Fear & Greed", `${fearGreed} — ${fearGreedLabel}`, fearColor],
             ["Engine Status", "Operational ●", "var(--green)"],
           ].map(([l, v, c]) => (
@@ -114,7 +114,7 @@ export default function OverviewPanel({ themes = [], articles = [], socialMetric
       {/* AI Query */}
       <div className="card" style={{ gridColumn: "1/-1", border: "1px solid var(--borderlit)" }}>
         <SectionTitle color="var(--amber)">Ask the Macro Intelligence Engine</SectionTitle>
-        <p style={{ color: "var(--ts)", fontSize: 12, marginBottom: 10 }}>AI has context of {themes.length} live themes and {articles.length} real articles.</p>
+        <p style={{ color: "var(--ts)", fontSize: 12, marginBottom: 10 }}>AI has context of {themes.length} live themes and {articleCount || articles.length} real articles.</p>
         <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
           <input value={query} onChange={e => setQuery(e.target.value)} onKeyDown={e => e.key === "Enter" && askAI()}
             placeholder="e.g. What are the biggest macro risks this week?"
@@ -191,7 +191,7 @@ export default function OverviewPanel({ themes = [], articles = [], socialMetric
       {/* Article Velocity */}
       <div className="card">
         <SectionTitle color="var(--cyan)">Article Velocity — This Week</SectionTitle>
-        <p style={{ color: "var(--ts)", fontSize: 11, marginBottom: 12 }}>{articles.length} articles indexed from live RSS + NewsAPI feeds</p>
+        <p style={{ color: "var(--ts)", fontSize: 11, marginBottom: 12 }}>{articleCount || articles.length} articles indexed from live RSS + NewsAPI feeds</p>
         <ResponsiveContainer width="100%" height={120}>
           <AreaChart data={velocityData} margin={{ top: 0, right: 0, left: -28, bottom: 0 }}>
             <XAxis dataKey="d" tick={{ fill: "var(--tm)", fontSize: 10 }} axisLine={false} tickLine={false} />

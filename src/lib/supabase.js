@@ -123,6 +123,13 @@ export async function saveMemory(entry) {
   if (error) console.error("saveMemory error:", error.message);
 }
 
+export async function fetchArticleCount() {
+  const { count } = await supabase
+    .from("articles")
+    .select("*", { count: "exact", head: true });
+  return count || 0;
+}
+
 // ── EMERGING THEMES ───────────────────────────────────────────
 export async function fetchEmergingThemes() {
   const { data } = await supabase
