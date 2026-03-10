@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { AppProvider, useApp } from "./context/AppContext.jsx";
 import { CSS_VARS, Spinner, ArticleHoverPopup, ArticleFeedModal, heatColor } from "./components/shared.jsx";
 import {
-  fetchThemes, fetchArticles, fetchLatestSocialMetrics,
+  fetchThemes, fetchArticles, fetchLatestSocialMetrics, fetchArticleCount,
   fetchMarketPulse, subscribeToArticles, subscribeToThemes,
 } from "./lib/supabase.js";
 
@@ -62,7 +62,7 @@ const NAV = [
 const TITLE_MAP = { overview:"System Overview", themes:"Theme Heat Monitor", risk:"Risk Implication Trees", graph:"Knowledge Graph", brief:"Weekly Macro Brief", watchlist:"Emerging Watchlist", articles:"Article Intelligence Hub", memory:"Institutional Memory", query:"AI Query Interface", social:"Social Pulse" };
 
 function AppInner() {
-  const { colorTheme, toggleTheme, apiKeys, setApiKeys, articleModal, closeArticleModal } = useApp();
+  const { colorTheme, toggleTheme, articleModal, closeArticleModal } = useApp();
   const [showTour, setShowTour] = useState(false);
   const [active, setActive] = useState("overview");
   const [time, setTime] = useState(new Date());
@@ -71,29 +71,24 @@ function AppInner() {
   const [articles, setArticles] = useState([]);
   const [marketPulse, setMarketPulse] = useState([]);
   const [socialMetrics, setSocialMetrics] = useState(null);
-  const [dataLoading, setDataLoading] = useState(true);
+  const [articleCount, setArticleCount] = useState(0);
   const [lastRefreshed, setLastRefreshed] = useState(null);
   const [nextRefresh, setNextRefresh] = useState(30 * 60);
 
-  // Auto-load API keys from environment variables — no modal needed
-  useEffect(() => {
-    setApiKeys({
-      claude: import.meta.env.VITE_ANTHROPIC_KEY || "",
-      alphaVantage: import.meta.env.VITE_AV_KEY || "",
-      youtube: import.meta.env.VITE_YT_KEY || "",
-    });
-  }, []);
+  
 
   useEffect(() => { const t = setInterval(() => { setTime(new Date()); setNextRefresh(s => s <= 1 ? 30*60 : s-1); }, 1000); return () => clearInterval(t); }, []);
 
   const loadData = useCallback(async () => {
     setDataLoading(true);
     try {
-      const [t, a, mp, sm] = await Promise.all([fetchThemes(), fetchArticles({ limit: 50 }), fetchMarketPulse(), fetchLatestSocialMetrics()]);
+      const [t, a, mp, sm, ac] = await Promise.all([fetchThemes(), fetchArticles({ limit: 50 }), fetchMarketPulse(), fetchLatestSocialMetrics(), fetchArticleCount()]);
       if (t.length) setThemes(t);
       if (a.length) setArticles(a);
       if (mp.length) setMarketPulse(mp);
       if (sm) setSocialMetrics(sm);
+      setArticleCount(ac);
+      console.log("articleCount set to:", ac);
       setLastRefreshed(new Date());
       setNextRefresh(30 * 60);
     } catch (e) { console.error("Data load error:", e.message); }
@@ -112,11 +107,10 @@ function AppInner() {
 
   const suspiciousSilence = themes.find(t => t.status?.includes("Suspicious Silence"));
   const props = {
-    apiKey: apiKeys.claude || "",
-    avKey: apiKeys.alphaVantage || "",
-    ytKey: apiKeys.youtube || "",
+    ytKey: import.meta.env.VITE_YT_KEY || "",
     themes: themes || [],
     articles: articles || [],
+    articleCount: articleCount || articles.length,
     marketPulse: marketPulse || [],
     socialMetrics: socialMetrics || null,
     onRefresh: loadData,
@@ -193,13 +187,7 @@ function AppInner() {
 
           <div style={{ flex: 1, overflow: "auto", padding: "18px 22px" }} key={active}>
             <div className="fade-up" style={{ maxWidth: 1200, margin: "0 auto" }}>
-              {(dataLoading && !themes.length) || (!dataLoading && !themes.length)
-                ? <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: 400, gap: 16 }}>
-                    <Spinner size={32} />
-                    <div className="mono" style={{ color: "var(--ts)", fontSize: 13 }}>Loading live data from Supabase...</div>
-                  </div>
-                : renderPanel()
-              }
+              {renderPanel()}
             </div>
           </div>
         </div>
@@ -228,7 +216,7 @@ function AppInner() {
             </div>
           ))}
           <div className="mono" style={{ fontSize: 10, color: "var(--tm)", textTransform: "uppercase", letterSpacing: "0.15em", margin: "14px 0 4px" }}>Articles in DB</div>
-          <div className="mono" style={{ fontSize: 18, fontWeight: 700, color: "var(--cyan)" }}>{articles.length}</div>
+          <div className="mono" style={{ fontSize: 18, fontWeight: 700, color: "var(--cyan)" }}>{articleCount || articles.length}</div>
           <button onClick={() => setShowTour(true)} style={{ width: "100%", marginTop: 14, background: "var(--amber-glow)", border: "1px solid var(--borderlit)", borderRadius: 6, padding: "8px", color: "var(--amber)", cursor: "pointer", fontFamily: "monospace", fontSize: 11 }}>▶ Replay Tour</button>
         </div>
       </div>
