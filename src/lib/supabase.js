@@ -124,10 +124,12 @@ export async function saveMemory(entry) {
 }
 
 export async function fetchArticleCount() {
-  const { count } = await supabase
+  const { count, error } = await supabase
     .from("articles")
     .select("*", { count: "exact", head: true });
-  return count || 0;
+  if (error) console.error("fetchArticleCount error:", error.message);
+  console.log("fetchArticleCount result:", count);
+  return typeof count === "number" ? count : 0;
 }
 
 // ── EMERGING THEMES ───────────────────────────────────────────
