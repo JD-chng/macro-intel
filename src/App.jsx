@@ -72,6 +72,7 @@ function AppInner() {
   const [marketPulse, setMarketPulse] = useState([]);
   const [socialMetrics, setSocialMetrics] = useState(null);
   const [articleCount, setArticleCount] = useState(0);
+  const [dataLoading, setDataLoading] = useState(true);
   const [lastRefreshed, setLastRefreshed] = useState(null);
   const [nextRefresh, setNextRefresh] = useState(30 * 60);
 
