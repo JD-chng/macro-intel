@@ -8,6 +8,9 @@
 
 ## About
 
+**Project Title:** Macro Economic Tracker
+**Team Name:** StraitsX
+
 Macro Intelligence is an AI driven macro research platform that transforms large volumes of financial news into structured insights. The system aggregates live articles from multiple sources and uses AI to classify them into macro themes, generate concise summaries, assign sentiment labels and track the momentum of emerging narratives. Instead of presenting isolated headlines, the platform organizes information into evolving macro stories that are continuously updated as new data arrives.
 
 The platform features an integrated dashboard that displays key system metrics, active themes, and overall market sentiment. A Theme Heat Monitor ranks macro narratives based on momentum and article activity, while the Risk Implication Tree maps how a selected event may propagate across different asset classes such as rates, FX, equities and credit. A Knowledge Graph visualizes relationships between macro concepts, allowing users to explore how policies, geopolitical events and markets are interconnected.
