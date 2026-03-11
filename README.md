@@ -280,6 +280,6 @@ macro-intel-backend/            ← Backend repo (private)
 
 ## Built For
 
-Singapore Management University — Case Competition Hackathon, March 2026.
+FinTech Innovators' Hackathon — Case Competition Hackathon, March 2026.
 
 Judging criteria: Innovation · Technology & Prototype · User Experience · Feasibility & Impact · Market Potential
