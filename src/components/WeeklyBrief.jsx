@@ -2,7 +2,7 @@ import { useState } from "react";
 import { SectionTitle, Chip, Spinner, MarkdownText, callClaude, ThemeDetailPopup, heatColor } from "./shared.jsx";
 import { useApp } from "../context/AppContext.jsx";
 
-export default function WeeklyBriefPanel({ themes = [], articles = [] }) {
+export default function WeeklyBriefPanel({ themes = [], articles = [], articleCount = 0 }) {
   const { briefCache, saveBriefCache } = useApp();
   const [loading, setLoading] = useState(false);
   const [themePopup, setThemePopup] = useState(null);
@@ -40,7 +40,7 @@ export default function WeeklyBriefPanel({ themes = [], articles = [] }) {
           <div>
             <div className="mono" style={{ color: "var(--amber)", fontSize: 11, letterSpacing: "0.2em" }}>MACRO INTELLIGENCE BRIEF</div>
             <div style={{ fontSize: 20, fontWeight: 700, marginTop: 4, color: "var(--tp)" }}>Week of {weekStr}</div>
-            <div style={{ fontSize: 12, color: "var(--ts)", marginTop: 4 }}>Based on {articles.length} live articles · {themes.length} active themes</div>
+            <div style={{ fontSize: 12, color: "var(--ts)", marginTop: 4 }}>Based on {articleCount || articles.length} live articles · {themes.length} active themes</div>
           </div>
           <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
             {briefAge !== null && (
@@ -67,7 +67,7 @@ export default function WeeklyBriefPanel({ themes = [], articles = [] }) {
       {!briefCache && (
         <div className="card" style={{ gridColumn: "1/-1", textAlign: "center", padding: "32px", color: "var(--ts)" }}>
           <div style={{ fontSize: 32, marginBottom: 12 }}>◆</div>
-          <div style={{ fontFamily: "monospace", fontSize: 13 }}>Click "Generate Brief" to create an AI-powered weekly brief using {articles.length} live articles and {themes.length} active themes as context.</div>
+          <div style={{ fontFamily: "monospace", fontSize: 13 }}>Click "Generate Brief" to create an AI-powered weekly brief using {articleCount || articles.length} live articles and {themes.length} active themes as context.</div>
         </div>
       )}
 
