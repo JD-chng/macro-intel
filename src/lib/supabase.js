@@ -132,6 +132,16 @@ export async function fetchArticleCount() {
   return typeof count === "number" ? count : 0;
 }
 
+export async function fetchArticleVelocity() {
+  // Get articles from the last 7 days for accurate velocity chart
+  const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const { data } = await supabase
+    .from("articles")
+    .select("published_at")
+    .gte("published_at", since);
+  return data || [];
+}
+
 // ── EMERGING THEMES ───────────────────────────────────────────
 export async function fetchEmergingThemes() {
   const { data } = await supabase

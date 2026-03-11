@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { AppProvider, useApp } from "./context/AppContext.jsx";
 import { CSS_VARS, Spinner, ArticleHoverPopup, ArticleFeedModal, heatColor } from "./components/shared.jsx";
 import {
-  fetchThemes, fetchArticles, fetchLatestSocialMetrics, fetchArticleCount,
+  fetchThemes, fetchArticles, fetchLatestSocialMetrics, fetchArticleCount, fetchArticleVelocity,
   fetchMarketPulse, subscribeToArticles, subscribeToThemes,
 } from "./lib/supabase.js";
 
@@ -72,6 +72,7 @@ function AppInner() {
   const [marketPulse, setMarketPulse] = useState([]);
   const [socialMetrics, setSocialMetrics] = useState(null);
   const [articleCount, setArticleCount] = useState(0);
+  const [velocityArticles, setVelocityArticles] = useState([]);
   const [dataLoading, setDataLoading] = useState(true);
   const [lastRefreshed, setLastRefreshed] = useState(null);
   const [nextRefresh, setNextRefresh] = useState(30 * 60);
@@ -83,13 +84,14 @@ function AppInner() {
   const loadData = useCallback(async () => {
     setDataLoading(true);
     try {
-      const [t, a, mp, sm, ac] = await Promise.all([fetchThemes(), fetchArticles({ limit: 50 }), fetchMarketPulse(), fetchLatestSocialMetrics(), fetchArticleCount()]);
+      const [t, a, mp, sm, ac, va] = await Promise.all([fetchThemes(), fetchArticles({ limit: 50 }), fetchMarketPulse(), fetchLatestSocialMetrics(), fetchArticleCount(), fetchArticleVelocity()]);
       if (t.length) setThemes(t);
       if (a.length) setArticles(a);
       if (mp.length) setMarketPulse(mp);
       if (sm) setSocialMetrics(sm);
       setArticleCount(ac);
       console.log("articleCount set to:", ac);
+      if (va.length) setVelocityArticles(va);
       setLastRefreshed(new Date());
       setNextRefresh(30 * 60);
     } catch (e) { console.error("Data load error:", e.message); }
@@ -112,6 +114,7 @@ function AppInner() {
     themes: themes || [],
     articles: articles || [],
     articleCount: articleCount || articles.length,
+    velocityArticles: velocityArticles || [],
     marketPulse: marketPulse || [],
     socialMetrics: socialMetrics || null,
     onRefresh: loadData,

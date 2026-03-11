@@ -19,7 +19,7 @@ async function fetchAlphaVantage(ticker, avKey) {
   } catch { return null; }
 }
 
-export default function OverviewPanel({ themes = [], articles = [], articleCount = 0, socialMetrics = null }) {
+export default function OverviewPanel({ themes = [], articles = [], articleCount = 0, velocityArticles = [], socialMetrics = null }) {
   const avKey = import.meta.env.VITE_AV_KEY || "";
   const [popupTheme, setPopupTheme] = useState(null);
   const [sentimentIdx, setSentimentIdx] = useState(0);
@@ -76,10 +76,11 @@ export default function OverviewPanel({ themes = [], articles = [], articleCount
     "Fed vs ECB divergence?",
   ];
 
-  // Article velocity chart — real counts per day of week, no random fallback
+  // Article velocity chart — uses all articles from last 7 days, not just the fetched 50
+  const sourceArticles = velocityArticles.length > 0 ? velocityArticles : articles;
   const velocityData = Array.from({ length: 7 }, (_, i) => {
     const dayLabel = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"][i];
-    const count = articles.filter(a => {
+    const count = sourceArticles.filter(a => {
       const d = new Date(a.published_at || 0);
       return d.getDay() === (i + 1) % 7; // Mon=1..Sun=0 → align correctly
     }).length;
